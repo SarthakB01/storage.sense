@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <div className="h-screen overflow-hidden">
       {/* NavBar */}
-      <header className="bg-gray-950 p-6 shadow-md rounded-lg flex justify-between items-center text-gray-200">
+      <header className="bg-gray-950 p-6 rounded-tr-none rounded-tl-none shadow-md rounded-lg flex justify-between items-center text-gray-200">
         <h1
           className={`text-3xl font-bold tracking-wide ${
             isLoggedIn ? "text-blue-500" : "text-blue-400"
