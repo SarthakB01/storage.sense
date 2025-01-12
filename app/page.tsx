@@ -25,6 +25,34 @@ export default function Home() {
     multiple: true,
   });
 
+  // Upload Handler
+  const handleUpload = async () => {
+    const formData = new FormData();
+
+    // Add files to the FormData object
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    try {
+      const response = await fetch("/api/files", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Files uploaded successfully!");
+      } else {
+        alert("Error uploading files: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error uploading files");
+    }
+  };
+
   return (
     <div className="h-screen overflow-hidden">
       {/* NavBar */}
@@ -108,7 +136,7 @@ export default function Home() {
           {files.length > 0 && (
             <button
               className="mt-4 ml-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300"
-              onClick={() => console.log("Go button clicked!")}
+              onClick={handleUpload}
             >
               Upload
             </button>
