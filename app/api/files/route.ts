@@ -1,8 +1,6 @@
-import { MongoClient } from 'mongodb';
-import fs from 'fs';
-import path from 'path';
-
-const clientPromise = new MongoClient(process.env.MONGODB_URI!).connect(); // Ensure URI is loaded from environment
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import clientPromise from '../../mongodb';
+import { GridFSBucket } from 'mongodb';
 
 export async function POST(request: Request) {
   try {
@@ -27,20 +25,17 @@ export async function POST(request: Request) {
     // Save metadata to MongoDB
     const client = await clientPromise;
     const db = client.db();
-    const collection = db.collection('file_metadata'); // Store metadata in this collection
+    const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
+    const collection = db.collection('file_metadata');
     await collection.insertMany(metadata);
 
-    // Save files locally
-    const fileDir = path.join(process.cwd(), 'uploads');
-    if (!fs.existsSync(fileDir)) {
-      fs.mkdirSync(fileDir);
-    }
-
-    // Save each file to the server
+    // Save files to GridFS
     for (const file of files) {
-      const filePath = path.join(fileDir, file.name);
+      const uploadStream = bucket.openUploadStream(file.name, {
+        metadata: { type: file.type, uploadedAt: new Date() },
+      });
       const buffer = await file.arrayBuffer();
-      fs.writeFileSync(filePath, Buffer.from(buffer));
+      uploadStream.end(Buffer.from(buffer));
     }
 
     return new Response(
@@ -53,5 +48,34 @@ export async function POST(request: Request) {
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const url = new URL(request.url);
+    const filename = url.searchParams.get('filename'); // Example: /api/files?filename=myfile.txt
+
+    if (!filename) {
+      return new Response('Filename is required', { status: 400 });
+    }
+
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db();
+    const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
+
+    // Open a download stream for the file
+    const downloadStream = bucket.openDownloadStreamByName(filename);
+
+    return new Response(downloadStream as any, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+    });
+  } catch (error) {
+    console.error('Error during file retrieval:', error);
+    return new Response('Error retrieving file', { status: 500 });
   }
 }

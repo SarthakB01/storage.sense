@@ -117,7 +117,7 @@ export default function Home() {
             </h2>
             <ul className="space-y-3 text-gray-600">
               <li>
-                <Link href="api/files">
+                <Link href="/api/files">
                   <span className="hover:text-[#0F4C75] font-semibold">
                     My Files
                   </span>
@@ -127,6 +127,40 @@ export default function Home() {
                 <Link href="/uploads">
                   <span className="hover:text-[#0F4C75] font-semibold">
                     Uploads
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/api/files/resize">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Resize Images
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/api/files/manage">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Manage Files (Add/Delete/Recycle Bin)
+                  </span>
+                </Link>
+              </li>
+            </ul>
+
+            <h2 className="text-xl font-bold text-[#1B262C] mt-6 mb-4">
+              Account Settings
+            </h2>
+            <ul className="space-y-3 text-gray-600">
+              <li>
+                <Link href="/account/settings">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Account Settings
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/help">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Help
                   </span>
                 </Link>
               </li>
@@ -147,7 +181,7 @@ export default function Home() {
               <input {...getInputProps()} />
               {files.length === 0 ? (
                 <div className="text-center">
-                  <CloudArrowUpIcon className="h-24 w-24 text-gray-400" />
+                  <CloudArrowUpIcon className="h-24 w-24 ml-14 text-gray-400" />
                   <p
                     className={`text-2xl font-semibold ${
                       isDragActive ? "text-[#0F4C75]" : "text-gray-600"
@@ -165,7 +199,7 @@ export default function Home() {
                       key={index}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-md shadow"
                     >
-                      <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-4 scale-110">
                         {file.type.startsWith("image/") ? (
                           <Image
                             src={URL.createObjectURL(file)}
@@ -181,7 +215,9 @@ export default function Home() {
                             </span>
                           </div>
                         )}
-                        <span className="font-medium">{file.name}</span>
+                        <span className="font-medium text-gray-600">
+                          {file.name}
+                        </span>
                       </div>
                       <span className="text-gray-500 text-sm">
                         {(file.size / 1024).toFixed(2)} KB
@@ -193,6 +229,7 @@ export default function Home() {
             </div>
 
             {files.length > 0 && (
+              <div className="flex justify-center">
               <button
                 onClick={handleUpload}
                 disabled={isUploading}
@@ -204,6 +241,8 @@ export default function Home() {
               >
                 {isUploading ? "Uploading..." : "Upload"}
               </button>
+            </div>
+            
             )}
           </div>
         </div>

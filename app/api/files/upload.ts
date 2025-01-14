@@ -1,65 +1,56 @@
-import { NextResponse } from 'next/server';
-import { Readable } from 'stream';
-import { ObjectId } from 'mongodb';
 import clientPromise from '../../mongodb';
 import { GridFSBucket } from 'mongodb';
-// import { File } from 'formidable';
+import { Readable } from 'stream';
 
-// Convert ReadableStream to Node.js Readable
-const streamToNodeReadable = (stream: ReadableStream<Uint8Array>): Readable => {
-  const reader = stream.getReader();
+function convertReadableStreamToReadable(readableStream: ReadableStream<Uint8Array>): Readable {
+  const reader = readableStream.getReader();
+
   return new Readable({
-    read() {
-      reader.read()
-        .then(({ done, value }) => {
-          if (done) this.push(null);
-          else this.push(value);
-        })
-        .catch((err) => this.destroy(err));
+    async read() {
+      const { done, value } = await reader.read();
+      if (done) {
+        this.push(null); // End the stream
+      } else {
+        this.push(Buffer.from(value)); // Push data to the stream
+      }
     },
   });
-};
+}
 
 export async function POST(request: Request) {
   try {
     const client = await clientPromise;
     const db = client.db();
-    
-    // Initialize GridFSBucket
     const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
-    
+
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const userId = formData.get('userId') as string;
+    const files = formData.getAll('files') as File[];
 
-    if (!file || !userId) {
-      return NextResponse.json({ error: 'File or User ID is missing' }, { status: 400 });
+    if (files.length === 0) {
+      return new Response('No files uploaded', { status: 400 });
     }
 
-    // Validate user ID
-    if (!ObjectId.isValid(userId)) {
-      return NextResponse.json({ error: 'Invalid User ID' }, { status: 400 });
+    for (const file of files) {
+      // Convert browser's ReadableStream to Node.js Readable stream
+      const readableStream = convertReadableStreamToReadable(file.stream());
+      const uploadStream = bucket.openUploadStream(file.name, {
+        metadata: { mimeType: file.type, size: file.size },
+      });
+
+      // Pipe the file stream into GridFS
+      await new Promise<void>((resolve, reject) => {
+        readableStream
+          .pipe(uploadStream)
+          .on('error', reject)
+          .on('finish', resolve);
+      });
     }
 
-    // Convert file stream and save to GridFS
-    const nodeReadable = streamToNodeReadable(file.stream());
-    const uploadStream = bucket.openUploadStream(file.name, {
-      metadata: {
-        contentType: file.type,
-        userId: new ObjectId(userId),
-        size: file.size,
-      },
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    await new Promise<void>((resolve, reject) => {
-      nodeReadable.pipe(uploadStream);
-      uploadStream.on('finish', resolve);
-      uploadStream.on('error', reject);
-    });
-
-    return NextResponse.json({ message: 'File uploaded successfully to database' }, { status: 201 });
   } catch (error) {
     console.error('Error during file upload:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    return new Response('Error uploading files', { status: 500 });
   }
 }
