@@ -73,17 +73,45 @@ export default function Home() {
   return (
     <div className="h-screen bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] flex flex-col">
       <header className="w-full px-8 py-6 flex justify-between items-center bg-white shadow-md">
-        <h1 className="relative text-4xl font-bold text-[#0F4C75]">
-          <span className="font-extrabold" style={{ letterSpacing: "2px" }}>
-            Storage
-          </span>
-          <span
-            className="absolute text-2xl font-medium text-gray-700"
-            style={{ top: "-5px", right: "-75px" }}
-          >
-            Sense
-          </span>
-        </h1>
+        <div className="flex items-center space-x-3">
+          {/* Minimal Icon */}
+          <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 10l9-7 9 7v7a4 4 0 01-4 4H7a4 4 0 01-4-4v-7z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 21V9l6 3m-6 0l6-3"
+              />
+            </svg>
+          </div>
+          {/* Text Section */}
+          <h1 className="text-3xl font-bold flex items-center space-x-1">
+            <span
+              className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none"
+              // style={{ fontFamily: "Guminert" }}
+            >
+              STORAGE
+            </span>
+            <span
+              className="text-2xl font-medium text-[#0F4C75]"
+              // style={{ fontFamily: "Guminert" }}
+            >
+              Sense
+            </span>
+          </h1>
+        </div>
 
         <div className="flex items-center space-x-6">
           {isLoggedIn && (
@@ -230,19 +258,18 @@ export default function Home() {
 
             {files.length > 0 && (
               <div className="flex justify-center">
-              <button
-                onClick={handleUpload}
-                disabled={isUploading}
-                className={`mt-4 py-2 px-6 font-bold text-white bg-[#0F4C75] rounded-lg transition duration-300 ${
-                  isUploading
-                    ? "cursor-not-allowed bg-gray-500"
-                    : "hover:bg-[#1B262C]"
-                }`}
-              >
-                {isUploading ? "Uploading..." : "Upload"}
-              </button>
-            </div>
-            
+                <button
+                  onClick={handleUpload}
+                  disabled={isUploading}
+                  className={`mt-4 py-2 px-6 font-bold text-white bg-[#0F4C75] rounded-lg transition duration-300 ${
+                    isUploading
+                      ? "cursor-not-allowed bg-gray-500"
+                      : "hover:bg-[#1B262C]"
+                  }`}
+                >
+                  {isUploading ? "Uploading..." : "Upload"}
+                </button>
+              </div>
             )}
           </div>
         </div>
