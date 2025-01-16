@@ -1,49 +1,60 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import clientPromise from '../../mongodb';
-import { GridFSBucket } from 'mongodb';
+// Import necessary modules
+import clientPromise from '../../mongodb'; // MongoDB connection utility
+import { GridFSBucket } from 'mongodb'; // GridFS for storing files
 
+// Handle POST request (file upload)
 export async function POST(request: Request) {
   try {
+    // Parse the incoming form data to retrieve files
     const formData = await request.formData();
-    const files = formData.getAll('files') as File[];
+    const files = formData.getAll('files') as File[]; // Get all files from the form data
 
+    // Check if any files were uploaded
     if (files.length === 0) {
       return new Response(
-        JSON.stringify({ success: false, error: 'No files were uploaded' }),
+        JSON.stringify({ success: false, error: 'No files were uploaded' }), // Error response
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     // Prepare file metadata for saving to MongoDB
     const metadata = files.map((file) => ({
-      filename: file.name,
-      size: file.size,
-      type: file.type,
-      uploadedAt: new Date(),
+      filename: file.name, // Original name of the file
+      size: file.size, // File size in bytes
+      type: file.type, // MIME type (e.g., image/jpeg, application/pdf)
+      uploadedAt: new Date(), // Timestamp of upload
     }));
 
+    // Connect to MongoDB and initialize GridFS bucket
+    const client = await clientPromise; // Get MongoDB client
+    const db = client.db(); // Get default database
+    const bucket = new GridFSBucket(db, { bucketName: 'uploads' }); // GridFS bucket for file storage
+    const collection = db.collection('file_metadata'); // Collection to store file metadata
+
     // Save metadata to MongoDB
-    const client = await clientPromise;
-    const db = client.db();
-    const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
-    const collection = db.collection('file_metadata');
     await collection.insertMany(metadata);
 
     // Save files to GridFS
     for (const file of files) {
+      // Open an upload stream for each file
       const uploadStream = bucket.openUploadStream(file.name, {
-        metadata: { type: file.type, uploadedAt: new Date() },
+        metadata: { type: file.type, uploadedAt: new Date() }, // Attach metadata to the file
       });
+
+      // Convert the file to an ArrayBuffer, then to a Buffer for uploading
       const buffer = await file.arrayBuffer();
-      uploadStream.end(Buffer.from(buffer));
+      uploadStream.end(Buffer.from(buffer)); // Upload the file content to GridFS
     }
 
+    // Respond with a success message
     return new Response(
       JSON.stringify({ success: true, message: 'Files uploaded successfully' }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error(error);
+    // Handle errors and respond with an appropriate error message
+    console.error('Error during file upload:', error);
     return new Response(
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -51,31 +62,50 @@ export async function POST(request: Request) {
   }
 }
 
+// Handle GET request (file retrieval and metadata fetching)
 export async function GET(request: Request) {
   try {
+    // Parse the request URL to retrieve query parameters
     const url = new URL(request.url);
-    const filename = url.searchParams.get('filename'); // Example: /api/files?filename=myfile.txt
+    const filename = url.searchParams.get('filename'); // Check if a filename is provided
 
-    if (!filename) {
-      return new Response('Filename is required', { status: 400 });
+    // If a filename is provided, download the file
+    if (filename) {
+      const client = await clientPromise; // Get MongoDB client
+      const db = client.db(); // Get default database
+      const bucket = new GridFSBucket(db, { bucketName: 'uploads' }); // GridFS bucket
+
+      // Open a download stream for the specified file
+      const downloadStream = bucket.openDownloadStreamByName(filename);
+
+      // Return the file as a response with proper headers
+      return new Response(downloadStream as any, {
+        headers: {
+          'Content-Type': 'application/octet-stream', // File content type
+          'Content-Disposition': `attachment; filename="${filename}"`, // Set the download filename
+        },
+      });
     }
 
-    // Connect to MongoDB
-    const client = await clientPromise;
-    const db = client.db();
-    const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
+    // If no filename is provided, fetch metadata for all files
+    const client = await clientPromise; // Get MongoDB client
+    const db = client.db(); // Get default database
+    const collection = db.collection('file_metadata'); // Metadata collection
 
-    // Open a download stream for the file
-    const downloadStream = bucket.openDownloadStreamByName(filename);
+    // Retrieve all file metadata from the collection
+    const files = await collection.find({}).toArray();
 
-    return new Response(downloadStream as any, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${filename}"`,
-      },
-    });
+    // Respond with the metadata in JSON format
+    return new Response(
+      JSON.stringify({ success: true, files }), // Include metadata in the response
+      { headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
+    // Handle errors and respond with an appropriate error message
     console.error('Error during file retrieval:', error);
-    return new Response('Error retrieving file', { status: 500 });
+    return new Response(
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

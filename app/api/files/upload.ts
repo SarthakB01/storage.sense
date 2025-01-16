@@ -2,6 +2,7 @@ import clientPromise from '../../mongodb';
 import { GridFSBucket } from 'mongodb';
 import { Readable } from 'stream';
 
+// Convert browser's ReadableStream to Node.js Readable stream
 function convertReadableStreamToReadable(readableStream: ReadableStream<Uint8Array>): Readable {
   const reader = readableStream.getReader();
 
@@ -23,15 +24,17 @@ export async function POST(request: Request) {
     const db = client.db();
     const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
 
+    // Parse form data
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
 
+    // Check for files
     if (files.length === 0) {
       return new Response('No files uploaded', { status: 400 });
     }
 
+    // Upload each file to GridFS
     for (const file of files) {
-      // Convert browser's ReadableStream to Node.js Readable stream
       const readableStream = convertReadableStreamToReadable(file.stream());
       const uploadStream = bucket.openUploadStream(file.name, {
         metadata: { mimeType: file.type, size: file.size },

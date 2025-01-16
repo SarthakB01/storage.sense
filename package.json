@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "gridfs-stream": "^1.1.1",
     "mongodb": "^6.12.0",

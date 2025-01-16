@@ -6,6 +6,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const filename = url.searchParams.get('filename');
 
+    // Validate filename
     if (!filename) {
       return new Response('Filename is required', { status: 400 });
     }
@@ -14,10 +15,10 @@ export async function GET(request: Request) {
     const db = client.db();
     const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
 
+    // Open a download stream for the file
     const downloadStream = bucket.openDownloadStreamByName(filename);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new Response(downloadStream as any, {
+    return new Response(downloadStream as unknown as ReadableStream, {
       headers: {
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': `attachment; filename="${filename}"`,

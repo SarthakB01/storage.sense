@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useSession } from "next-auth/react";
@@ -35,6 +36,29 @@ export default function Home() {
       .catch((err) => console.error("Pre-warm failed:", err));
   }, []);
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+  
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  // Fetch uploaded files
+  useEffect(() => {
+    async function fetchUploadedFiles() {
+      try {
+        const response = await fetch("/api/files/displayFiles");
+        if (response.ok) {
+          const data = await response.json();
+          setUploadedFiles(data); // Set fetched file metadata
+        } else {
+          console.error("Failed to fetch files:", response.statusText);
+        }
+      } catch (err) {
+        console.error("Error fetching files:", err);
+      }
+    }
+
+    fetchUploadedFiles();
+  }, []);
+
   const handleUpload = async () => {
     if (files.length === 0) {
       alert("No files to upload!");
@@ -48,26 +72,34 @@ export default function Home() {
       formData.append("files", file);
     });
 
-    try {
-      const response = await fetch("/api/files", {
-        method: "POST",
-        body: formData,
-      });
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/files", true);
 
-      const result = await response.json();
-
-      if (result.success) {
-        alert("Files uploaded successfully!");
-        setFiles([]);
-      } else {
-        alert("Error uploading files: " + result.error);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentage = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percentage); // Set the upload progress
       }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error uploading files");
-    } finally {
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        alert("Files uploaded successfully!");
+        setFiles([]); // Clear the uploaded files
+      } else {
+        alert("Error uploading files: " + xhr.statusText);
+      }
       setIsUploading(false);
-    }
+      setUploadProgress(0);
+    };
+
+    xhr.onerror = () => {
+      alert("Error uploading files");
+      setIsUploading(false);
+      setUploadProgress(0);
+    };
+
+    xhr.send(formData);
   };
 
   return (
@@ -98,18 +130,10 @@ export default function Home() {
           </div>
           {/* Text Section */}
           <h1 className="text-3xl font-bold flex items-center space-x-1">
-            <span
-              className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none"
-              // style={{ fontFamily: "Guminert" }}
-            >
+            <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
               STORAGE
             </span>
-            <span
-              className="text-2xl font-medium text-[#0F4C75]"
-              // style={{ fontFamily: "Guminert" }}
-            >
-              Sense
-            </span>
+            <span className="text-2xl font-medium text-[#0F4C75]">Sense</span>
           </h1>
         </div>
 
@@ -137,65 +161,40 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
-        <div className="flex w-full max-w-6xl space-x-8">
-          <aside className="bg-white p-6 shadow-lg rounded-lg w-64">
+      <main className="flex-grow flex flex-col place-items-center justify-center px-4 py-8">
+        <div className="flex w-full max-w-6xl space-x-8 scale-110 ">
+          {/* Folders Section (on the left) */}
+          <aside className="bg-white p-8 shadow-lg rounded-lg w-96">
             <h2 className="text-xl font-bold text-[#1B262C] mb-4">
-              Your Storage
+              Your Folders
             </h2>
             <ul className="space-y-3 text-gray-600">
               <li>
-                <Link href="/api/files">
+                <Link href="/folder/Component1">
                   <span className="hover:text-[#0F4C75] font-semibold">
-                    My Files
+                    Folder 1
                   </span>
                 </Link>
               </li>
               <li>
-                <Link href="/uploads">
+                <Link href="/folder/Component2">
                   <span className="hover:text-[#0F4C75] font-semibold">
-                    Uploads
+                    Folder 2
                   </span>
                 </Link>
               </li>
               <li>
-                <Link href="/api/files/resize">
+                <Link href="/folder/Component3">
                   <span className="hover:text-[#0F4C75] font-semibold">
-                    Resize Images
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/api/files/manage">
-                  <span className="hover:text-[#0F4C75] font-semibold">
-                    Manage Files (Add/Delete/Recycle Bin)
-                  </span>
-                </Link>
-              </li>
-            </ul>
-
-            <h2 className="text-xl font-bold text-[#1B262C] mt-6 mb-4">
-              Account Settings
-            </h2>
-            <ul className="space-y-3 text-gray-600">
-              <li>
-                <Link href="/account/settings">
-                  <span className="hover:text-[#0F4C75] font-semibold">
-                    Account Settings
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/help">
-                  <span className="hover:text-[#0F4C75] font-semibold">
-                    Help
+                    Folder 3
                   </span>
                 </Link>
               </li>
             </ul>
           </aside>
 
-          <div className="bg-white p-8 rounded-lg shadow-lg flex-grow">
+          {/* Dropzone Area (in the middle) */}
+          <div className="bg-white p-8 rounded-lg shadow-lg flex-grow w-full max-w-2xl flex flex-col items-center justify-center">
             <div
               {...getRootProps()}
               className={`w-full h-64 border-2 ${
@@ -256,6 +255,17 @@ export default function Home() {
               )}
             </div>
 
+            {uploadProgress > 0 && (
+              <div className="mt-6 flex justify-center">
+                <div className="w-2/3 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-[#0F4C75] h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
             {files.length > 0 && (
               <div className="flex justify-center">
                 <button
@@ -272,6 +282,63 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Right Area (on the right) */}
+          <aside className="bg-white p-6 shadow-lg rounded-lg w-64">
+            <h2 className="text-xl font-bold text-[#1B262C] mb-4">
+              Your Storage
+            </h2>
+            <ul className="space-y-3 text-gray-600">
+              <li>
+                <Link href="/api/files/displayFiles">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    My Files
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/uploads">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Uploads
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/api/files/resize">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Resize Images
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/api/files/manage">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Manage Files (Add/Delete/Recycle Bin)
+                  </span>
+                </Link>
+              </li>
+            </ul>
+
+            <h2 className="text-xl font-bold text-[#1B262C] mt-6 mb-4">
+              Account Settings
+            </h2>
+            <ul className="space-y-3 text-gray-600">
+              <li>
+                <Link href="/account/settings">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Account Settings
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/help">
+                  <span className="hover:text-[#0F4C75] font-semibold">
+                    Help
+                  </span>
+                </Link>
+              </li>
+            </ul>
+          </aside>
         </div>
       </main>
     </div>
