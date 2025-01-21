@@ -63,48 +63,22 @@ export async function POST(request: Request) {
 }
 
 // Handle GET request (file retrieval and metadata fetching)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: Request) {
   try {
-    // Parse the request URL to retrieve query parameters
-    const url = new URL(request.url);
-    const filename = url.searchParams.get('filename'); // Check if a filename is provided
-
-    // If a filename is provided, download the file
-    if (filename) {
-      const client = await clientPromise; // Get MongoDB client
-      const db = client.db(); // Get default database
-      const bucket = new GridFSBucket(db, { bucketName: 'uploads' }); // GridFS bucket
-
-      // Open a download stream for the specified file
-      const downloadStream = bucket.openDownloadStreamByName(filename);
-
-      // Return the file as a response with proper headers
-      return new Response(downloadStream as any, {
-        headers: {
-          'Content-Type': 'application/octet-stream', // File content type
-          'Content-Disposition': `attachment; filename="${filename}"`, // Set the download filename
-        },
-      });
-    }
-
-    // If no filename is provided, fetch metadata for all files
-    const client = await clientPromise; // Get MongoDB client
-    const db = client.db(); // Get default database
-    const collection = db.collection('file_metadata'); // Metadata collection
-
-    // Retrieve all file metadata from the collection
+    const client = await clientPromise;
+    const db = client.db();
+    const collection = db.collection('file_metadata');
     const files = await collection.find({}).toArray();
 
-    // Respond with the metadata in JSON format
     return new Response(
-      JSON.stringify({ success: true, files }), // Include metadata in the response
+      JSON.stringify({ success: true, files }),
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    // Handle errors and respond with an appropriate error message
     console.error('Error during file retrieval:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ success: false, error: 'Error retrieving files' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

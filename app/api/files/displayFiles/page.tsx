@@ -1,8 +1,6 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-
 export default function MyFiles() {
   interface File {
     _id: string;
@@ -10,23 +8,28 @@ export default function MyFiles() {
     size: number;
     filetype: string; // Add a filetype property to handle fallback
   }
-
   const [files, setFiles] = useState<File[]>([]);
-
   useEffect(() => {
     async function fetchFiles() {
-      const response = await fetch('/api/files'); // Adjust path if necessary
-      const data = await response.json();
-      if (data.success) {
-        setFiles(data.files);
-      } else {
-        console.error('Error fetching files:', data.error);
+      try {
+        const response = await fetch('/api/files'); // Ensure this path is correct
+        if (!response.ok) { // Check if response is not okay (e.g., 404 or 500)
+          console.error(`API error: ${response.status} ${response.statusText}`);
+          return;
+        }
+        const data = await response.json(); // Parse JSON only if response is okay
+        if (data.success) {
+          setFiles(data.files);
+        } else {
+          console.error('Error fetching files:', data.error);
+        }
+      } catch (err) {
+        console.error('Fetch failed:', err); // Handle network or parsing errors
       }
     }
-
+    
     fetchFiles();
   }, []);
-
   return (
     <div style={{ padding: '20px' }}>
       <h1>My Files</h1>
