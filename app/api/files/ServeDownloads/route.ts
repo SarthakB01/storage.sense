@@ -1,4 +1,4 @@
-import clientPromise from '../../mongodb';
+import clientPromise from '../../../mongodb';
 import { GridFSBucket } from 'mongodb';
 
 export async function GET(request: Request) {
@@ -18,9 +18,17 @@ export async function GET(request: Request) {
     // Open a download stream for the file
     const downloadStream = bucket.openDownloadStreamByName(filename);
 
+    if (!downloadStream) {
+      return new Response('File not found', { status: 404 });
+    }
+
+    // Set content type based on file extension
+    const ext = filename.split('.').pop();
+    const mimeType = ext === 'pdf' ? 'application/pdf' : 'application/octet-stream'; // Example for PDF, add others as needed
+
     return new Response(downloadStream as unknown as ReadableStream, {
       headers: {
-        'Content-Type': 'application/octet-stream',
+        'Content-Type': mimeType,
         'Content-Disposition': `attachment; filename="${filename}"`,
       },
     });

@@ -290,7 +290,7 @@ export default function Home() {
             </h2>
             <ul className="space-y-3 text-gray-600">
               <li>
-                <Link href="/api/files/displayFiles">
+                <Link href="/MyFiles">
                   <span className="hover:text-[#0F4C75] font-semibold">
                     My Files
                   </span>

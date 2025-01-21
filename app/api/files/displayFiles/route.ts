@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Import necessary modules
-import clientPromise from '../../mongodb'; // MongoDB connection utility
+import clientPromise from '../../../mongodb'; // MongoDB connection utility
 import { GridFSBucket } from 'mongodb'; // GridFS for storing files
 
 // Handle POST request (file upload)

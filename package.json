@@ -17,9 +17,11 @@
     "mongoose": "^8.9.4",
     "next": "^15.1.5",
     "next-auth": "^4.24.11",
+    "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.5",
+    "share": "^0.7.40",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
