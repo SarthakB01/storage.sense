@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // Import necessary modules
 import clientPromise from '../../../mongodb'; // MongoDB connection utility
 import { GridFSBucket } from 'mongodb'; // GridFS for storing files
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const client = await clientPromise; // Get MongoDB client
     const db = client.db(); // Get default database
     const bucket = new GridFSBucket(db, { bucketName: 'uploads' }); // GridFS bucket for file storage
-    const collection = db.collection('file_metadata'); // Collection to store file metadata
+    const collection = db.collection('uploads.files'); // Collection to store file metadata
 
     // Save metadata to MongoDB
     await collection.insertMany(metadata);
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
   try {
     const client = await clientPromise;
     const db = client.db();
-    const collection = db.collection('file_metadata');
+    const collection = db.collection('uploads.files');
     const files = await collection.find({}).toArray();
 
     return new Response(
@@ -83,3 +83,5 @@ export async function GET(request: Request) {
     );
   }
 }
+
+
