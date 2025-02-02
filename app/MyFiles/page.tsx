@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon as DotsVerticalIcon } from "@heroicons/react/24/solid";
 
@@ -20,9 +21,17 @@ export default function MyFiles() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
+
   const handleProperties = (file: File) => {
     setSelectedFile(file);
     setShowSidebar(true);
+  };
+
+  const handleFileOpen = (file: File) => {
+    setPreviewFile(file);
+    setIsPreviewOpen(true);
   };
 
   useEffect(() => {
@@ -173,6 +182,7 @@ export default function MyFiles() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
+                                onClick={() => handleFileOpen(file)}
                                 className={`block px-4 py-2 text-gray-900 hover:text-gray-800 ${
                                   active ? "bg-gray-100" : ""
                                 }`}
@@ -285,6 +295,46 @@ export default function MyFiles() {
               </div>
             </div>
           </aside>
+        )}
+
+        {isPreviewOpen && previewFile && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsPreviewOpen(false);
+              }
+            }}
+          >
+            <div className="bg-white p-4 rounded-lg w-4/5 h-4/5 relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop event from bubbling up
+                  setIsPreviewOpen(false);
+                }}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-50"
+              >
+                <XMarkIcon className="w-10 h-10 text-red-600" />
+              </button>
+              <div className="relative w-full h-full">
+                <div className="absolute top-4 left-4 p-3 bg-black bg-opacity-50 text-white rounded-lg max-w-[80%] z-10">
+                  <p
+                    className="truncate font-medium"
+                    title={previewFile.filename}
+                  >
+                    {previewFile.filename}
+                  </p>
+                </div>
+                <Image
+                  src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
+                  alt={previewFile.filename}
+                  fill
+                  className="object-contain"
+                  sizes="80vw"
+                />
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
