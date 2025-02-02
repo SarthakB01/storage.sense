@@ -1,5 +1,9 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon as DotsVerticalIcon } from "@heroicons/react/24/solid";
 
@@ -13,7 +17,13 @@ export default function MyFiles() {
   }
 
   const [files, setFiles] = useState<File[]>([]);
-  
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleProperties = (file: File) => {
+    setSelectedFile(file);
+    setShowSidebar(true);
+  };
 
   useEffect(() => {
     async function fetchFiles() {
@@ -33,7 +43,6 @@ export default function MyFiles() {
         console.error("Fetch failed:", err);
       }
     }
-
     fetchFiles();
   }, []);
 
@@ -42,8 +51,19 @@ export default function MyFiles() {
 
     if (["jpg", "jpeg", "png", "gif", "bmp"].includes(fileExtension || "")) {
       return (
-        <div className="w-24 h-24 flex items-center justify-center bg-gray-300 rounded-lg text-gray-700 font-bold text-xl">
-          IMG
+        <div className="relative w-32 h-32">
+          <Image
+            src={`/api/files/ServeDownloads?filename=${file.filename}`}
+            alt={file.filename}
+            fill
+            className="object-cover rounded-lg"
+            sizes="96px"
+            onError={(e) => {
+              // TypeScript requires type assertion for error event
+              const target = e.target as HTMLImageElement;
+              target.src = "/fallback-image.png";
+            }}
+          />
         </div>
       );
     } else if (fileExtension === "pdf") {
@@ -68,8 +88,8 @@ export default function MyFiles() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] flex flex-col">
-      <header className="w-full px-8 py-6 flex justify-between items-center bg-white shadow-md">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] pt-[88px]">
+      <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white shadow-md z-50">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
             <svg
@@ -99,88 +119,174 @@ export default function MyFiles() {
             <span className="text-2xl font-medium text-[#0F4C75]">Sense</span>
           </h1>
         </div>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 bg-[#0F4C75] hover:bg-[#1B262C] text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:scale-105"
+        >
+          <ArrowLeftIcon className="h-5 w-5" />
+          Back to Home
+        </Link>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
-        <div className="w-full max-w-6xl px-4 py-6 bg-white rounded-lg shadow-lg">
-          <h1 className="text-2xl font-semibold text-[#1B262C] mb-6">
-            My Files
-          </h1>
-          <div className="flex flex-wrap gap-4">
-            {files.map((file) => (
-              <div
-                key={file._id}
-                className="border border-gray-300 rounded-lg p-4 w-52 text-center bg-[#F0F8FF] shadow-lg"
-              >
-                {/* File name on top and Menu in top-right */}
-                <div className="flex justify-between items-center mb-2">
-                  <p
-                    className="font-bold text-gray-900 text-lg truncate"
-                    title={file.filename} // Show full name on hover
-                  >
-                    {file.filename}
-                  </p>
-                  <Menu as="div" className="relative">
-                    <Menu.Button
-                      as="div"
-                      className="cursor-pointer hover:bg-gray-100 rounded-full"
-                      aria-label="Options"
+      <div className="flex-1 relative">
+        <main
+          className={`h-full bg-white transition-all duration-300 ${
+            showSidebar ? "mr-[400px]" : ""
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <h1 className="text-3xl font-semibold text-[#1B262C] mb-6">
+              My Files
+            </h1>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {files.map((file, index) => (
+                <div
+                  key={file._id}
+                  className={`border border-gray-300 rounded-lg p-4 text-center shadow-lg
+                  ${
+                    Math.floor(index / 4) % 2 === 0
+                      ? "bg-[#e8f2fa]"
+                      : "bg-white"
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <p
+                      className="font-bold text-gray-900 text-lg truncate"
+                      title={file.filename}
                     >
-                      <DotsVerticalIcon className="h-5 w-5 text-gray-500" />
-                    </Menu.Button>
-
-                    <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      <div className="py-1">
-                        <Menu.Item
-                          as="a"
-                          className="block px-4 py-2 text-gray-600 hover:text-gray-800"
-                          // onClick={() => handleOpen(file.filename)}
-                        >
-                          Open
-                        </Menu.Item>
-                        <Menu.Item
-                          as="a"
-                          href={`/api/files/ServeDownloads?filename=${file.filename}`}
-                          className="block px-4 py-2 text-blue-600 hover:text-blue-800"
-                          // onClick={() => handleDownload(file.filename)}
-                        >
-                          Download
-                        </Menu.Item>
-                        <Menu.Item
-                          as="a"
-                          className="block px-4 py-2 text-red-600 hover:text-red-800"
-                          // onClick={() => handleDelete(file.filename)}
-                        >
-                          Delete
-                        </Menu.Item>
-
-                        <Menu.Item
-                          as="a"
-                          className="block px-4 py-2 text-blue-600 hover:text-blue-800"
-                          // onClick={() => handleProperties(file.filename)}
-                        >
-                          Properties
-                        </Menu.Item>
-
-                      </div>
-                    </Menu.Items>
-                  </Menu>
+                      {file.filename.length > 15
+                        ? `${file.filename.substring(0, 15)}...${file.filename
+                            .split(".")
+                            .pop()}`
+                        : file.filename}
+                    </p>
+                    <Menu as="div" className="relative">
+                      <Menu.Button
+                        className="cursor-pointer hover:bg-gray-100 rounded-full p-1"
+                        aria-label="Options"
+                      >
+                        <DotsVerticalIcon className="h-5 w-5 text-gray-500" />
+                      </Menu.Button>
+                      <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                        <div className="py-1">
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                className={`block px-4 py-2 text-gray-900 hover:text-gray-800 ${
+                                  active ? "bg-gray-100" : ""
+                                }`}
+                                href="#"
+                              >
+                                Open
+                              </a>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                href={`/api/files/ServeDownloads?filename=${file.filename}`}
+                                className={`block px-4 py-2 text-blue-600 hover:text-blue-800 ${
+                                  active ? "bg-gray-100" : ""
+                                }`}
+                              >
+                                Download
+                              </a>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                className={`block px-4 py-2 text-red-600 hover:text-red-800 ${
+                                  active ? "bg-gray-100" : ""
+                                }`}
+                                href="#"
+                              >
+                                Delete
+                              </a>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                onClick={() => handleProperties(file)}
+                                className={`block px-4 py-2 text-gray-600 ${
+                                  active ? "bg-gray-100" : ""
+                                }`}
+                              >
+                                Properties
+                              </a>
+                            )}
+                          </Menu.Item>
+                        </div>
+                      </Menu.Items>
+                    </Menu>
+                  </div>
+                  <div className="w-full h-36 mb-4 flex items-center justify-center bg-gray-100 rounded-lg">
+                    {getFileIcon(file)}
+                  </div>
                 </div>
-
-                {/* File Icon */}
-                <div className="w-full h-36 mb-4 flex items-center justify-center bg-gray-100 rounded-lg">
-                  {getFileIcon(file)}
-                </div>
-
-                {/* File Size (below file name) */}
-                <p className="text-xs text-gray-800">
-                  {(file.length / 1024).toFixed(2)} KB
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+
+        {showSidebar && selectedFile && (
+          <aside className="fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white shadow-lg overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  File Properties
+                </h3>
+                <button
+                  onClick={() => setShowSidebar(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex flex-col items-center mb-6">
+                {getFileIcon(selectedFile)}
+                <h4 className="text-lg font-medium text-gray-800 mt-4 text-center">
+                  {selectedFile.filename}
+                </h4>
+              </div>
+              <div className="space-y-4">
+                <div className="border-t pt-4">
+                  <h5 className="text-sm font-medium text-gray-500 mb-2">
+                    File Details
+                  </h5>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Size</span>
+                      <span className="text-gray-800">
+                        {(selectedFile.length / 1024).toFixed(2)} KB
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Type</span>
+                      <span className="text-gray-800">
+                        {selectedFile.filetype || "Unknown"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        )}
+      </div>
     </div>
   );
 }

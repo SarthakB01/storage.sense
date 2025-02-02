@@ -37,7 +37,7 @@ export default function Home() {
   }, []);
 
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
   // Fetch uploaded files
@@ -226,7 +226,7 @@ export default function Home() {
                       key={index}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-md shadow"
                     >
-                      <div className="flex items-center space-x-4 scale-110">
+                      <div className="flex items-center space-x-4 scale-110 ml-4 ">
                         {file.type.startsWith("image/") ? (
                           <Image
                             src={URL.createObjectURL(file)}
@@ -243,7 +243,11 @@ export default function Home() {
                           </div>
                         )}
                         <span className="font-medium text-gray-600">
-                          {file.name}
+                          {file.name.length > 15
+                            ? `${file.name.substring(0, 15)}...${file.name
+                                .split(".")
+                                .pop()}`
+                            : file.name}
                         </span>
                       </div>
                       <span className="text-gray-500 text-sm">

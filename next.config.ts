@@ -4,6 +4,14 @@
 const nextConfig = {
   images: {
     domains: ['avatars.githubusercontent.com'],
+      remotePatterns: [
+        {
+          protocol: 'http',
+          hostname: 'localhost',
+          port: '3000',
+          pathname: '/api/files/**',
+        },
+      ],
   },
 };
 
