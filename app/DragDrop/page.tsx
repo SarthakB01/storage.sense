@@ -291,7 +291,7 @@ export default function Home() {
             <ul className="space-y-3 text-gray-600">
               <li>
                 <Link href="/api/files/displayFiles">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75]  font-semibold">
                     My Files
                   </span>
                 </Link>

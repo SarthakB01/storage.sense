@@ -8,7 +8,16 @@ import { useState, useEffect } from "react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
+import { useTheme } from 'next-themes'
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
+import DarkModeToggle from '@/app/components/DarkModeToggle';
+
+
+
+
 export default function Home() {
+
+  
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
 
@@ -103,8 +112,8 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] flex flex-col">
-      <header className="w-full px-8 py-6 flex justify-between items-center bg-white shadow-md">
+    <div className="h-screen bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] dark:from-gray-800 dark:to-gray-900 flex flex-col">
+      <header className="w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md">
         <div className="flex items-center space-x-3">
           {/* Minimal Icon */}
           <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
@@ -133,11 +142,22 @@ export default function Home() {
             <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
               STORAGE
             </span>
-            <span className="text-2xl font-medium text-[#0F4C75]">Sense</span>
+            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">Sense</span>
           </h1>
         </div>
 
         <div className="flex items-center space-x-6">
+          
+
+          <DarkModeToggle />
+
+          {/* <DarkModeToggleButton /> */}
+
+
+
+
+
+
           {isLoggedIn && (
             <div className="flex items-center space-x-2">
               <Image
@@ -147,7 +167,7 @@ export default function Home() {
                 height={40}
                 className="rounded-full border-2 border-[#1B262C]"
               />
-              <span className="text-gray-700 font-medium">
+              <span className="text-gray-700 dark:text-gray-200 font-medium">
                 {session?.user?.name}
               </span>
             </div>
@@ -164,28 +184,28 @@ export default function Home() {
       <main className="flex-grow flex flex-col place-items-center justify-center px-4 py-8">
         <div className="flex w-full max-w-6xl space-x-8 scale-110 ">
           {/* Folders Section (on the left) */}
-          <aside className="bg-white p-8 shadow-lg rounded-lg w-96">
-            <h2 className="text-xl font-bold text-[#1B262C] mb-4">
+          <aside className="bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg w-96">
+            <h2 className="text-xl  font-bold text-[#1B262C] dark:text-white mb-4">
               Your Folders
             </h2>
-            <ul className="space-y-3 text-gray-600">
+            <ul className="space-y-3 text-gray-600 dark:text-gray-300">
               <li>
                 <Link href="/folder/Component1">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Folder 1
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/folder/Component2">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Folder 2
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/folder/Component3">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Folder 3
                   </span>
                 </Link>
@@ -194,13 +214,13 @@ export default function Home() {
           </aside>
 
           {/* Dropzone Area (in the middle) */}
-          <div className="bg-white p-8 rounded-lg shadow-lg flex-grow w-full max-w-2xl flex flex-col items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg flex-grow w-full max-w-2xl flex flex-col items-center justify-center">
             <div
               {...getRootProps()}
               className={`w-full h-64 border-2 ${
                 isDragActive
                   ? "border-[#0F4C75]"
-                  : "border-dashed border-gray-300"
+                  : "border-dashed border-gray-300 dark:border-gray-600"
               } rounded-lg flex flex-col items-center justify-center gap-4 transition duration-300 ${
                 isDragActive ? "shadow-lg bg-[#BBE1FA]" : ""
               }`}
@@ -208,10 +228,10 @@ export default function Home() {
               <input {...getInputProps()} />
               {files.length === 0 ? (
                 <div className="text-center">
-                  <CloudArrowUpIcon className="h-24 w-24 ml-14 text-gray-400" />
+                  <CloudArrowUpIcon className="h-24 w-24 ml-14 text-gray-400 dark:text-gray-500" />
                   <p
                     className={`text-2xl font-semibold ${
-                      isDragActive ? "text-[#0F4C75]" : "text-gray-600"
+                      isDragActive ? "text-[#0F4C75]" : "text-gray-600 dark:text-gray-300"
                     }`}
                   >
                     {isDragActive
@@ -224,7 +244,7 @@ export default function Home() {
                   {files.map((file, index) => (
                     <li
                       key={index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-md shadow"
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow"
                     >
                       <div className="flex items-center space-x-4 scale-110 ml-4 ">
                         {file.type.startsWith("image/") ? (
@@ -236,13 +256,13 @@ export default function Home() {
                             className="object-cover rounded-lg"
                           />
                         ) : (
-                          <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span className="font-bold text-gray-700">
+                          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                            <span className="font-bold text-gray-700 dark:text-gray-300">
                               {file.name.split(".").pop()?.toUpperCase() || ""}
                             </span>
                           </div>
                         )}
-                        <span className="font-medium text-gray-600">
+                        <span className="font-medium text-gray-600 dark:text-gray-300">
                           {file.name.length > 15
                             ? `${file.name.substring(0, 15)}...${file.name
                                 .split(".")
@@ -250,7 +270,7 @@ export default function Home() {
                             : file.name}
                         </span>
                       </div>
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
                         {(file.size / 1024).toFixed(2)} KB
                       </span>
                     </li>
@@ -261,7 +281,7 @@ export default function Home() {
 
             {uploadProgress > 0 && (
               <div className="mt-6 flex justify-center">
-                <div className="w-2/3 bg-gray-200 rounded-full h-2">
+                <div className="w-2/3 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                   <div
                     className="bg-[#0F4C75] h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
@@ -288,55 +308,55 @@ export default function Home() {
           </div>
 
           {/* Right Area (on the right) */}
-          <aside className="bg-white p-6 shadow-lg rounded-lg w-64">
-            <h2 className="text-xl font-bold text-[#1B262C] mb-4">
+          <aside className="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg w-64">
+            <h2 className="text-xl font-bold text-[#1B262C] dark:text-white mb-4">
               Your Storage
             </h2>
-            <ul className="space-y-3 text-gray-600">
+            <ul className="space-y-3 text-gray-600 dark:text-gray-300">
               <li>
                 <Link href="/MyFiles">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     My Files
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/uploads">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Uploads
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/api/files/resize">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Resize Images
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/api/files/manage">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Manage Files (Add/Delete/Recycle Bin)
                   </span>
                 </Link>
               </li>
             </ul>
 
-            <h2 className="text-xl font-bold text-[#1B262C] mt-6 mb-4">
+            <h2 className="text-xl font-bold text-[#1B262C] dark:text-white mt-6 mb-4">
               Account Settings
             </h2>
-            <ul className="space-y-3 text-gray-600">
+            <ul className="space-y-3 text-gray-600 dark:text-gray-300">
               <li>
                 <Link href="/account/settings">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Account Settings
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/help">
-                  <span className="hover:text-[#0F4C75] font-semibold">
+                  <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                     Help
                   </span>
                 </Link>

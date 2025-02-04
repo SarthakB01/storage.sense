@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, XMarkIcon, EllipsisVerticalIcon as DotsVerticalIcon } from "@heroicons/react/24/solid";
 import { Menu } from "@headlessui/react";
-import { EllipsisVerticalIcon as DotsVerticalIcon } from "@heroicons/react/24/solid";
+import { useTheme } from 'next-themes';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 export default function MyFiles() {
   interface File {
@@ -97,8 +99,8 @@ export default function MyFiles() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] pt-[88px]">
-      <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white shadow-md z-50">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] dark:from-gray-800 dark:to-gray-900 pt-[88px]">
+      <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
             <svg
@@ -125,26 +127,29 @@ export default function MyFiles() {
             <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
               STORAGE
             </span>
-            <span className="text-2xl font-medium text-[#0F4C75]">Sense</span>
+            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">Sense</span>
           </h1>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 bg-[#0F4C75] hover:bg-[#1B262C] text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:scale-105"
-        >
-          <ArrowLeftIcon className="h-5 w-5" />
-          Back to Home
-        </Link>
+        <div className="flex items-center space-x-6">
+          <DarkModeToggle />
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 bg-[#0F4C75] hover:bg-[#1B262C] text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:scale-105"
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
+            Back to Home
+          </Link>
+        </div>
       </header>
 
       <div className="flex-1 relative">
         <main
-          className={`h-full bg-white transition-all duration-300 ${
+          className={`h-full bg-white dark:bg-gray-800 transition-all duration-300 ${
             showSidebar ? "mr-[400px]" : ""
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <h1 className="text-3xl font-semibold text-[#1B262C] mb-6">
+            <h1 className="text-3xl font-semibold text-[#1B262C] dark:text-white mb-6">
               My Files
             </h1>
 
@@ -152,16 +157,15 @@ export default function MyFiles() {
               {files.map((file, index) => (
                 <div
                   key={file._id}
-                  className={`border border-gray-300 rounded-lg p-4 text-center shadow-lg
-                  ${
+                  className={`border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center shadow-lg ${
                     Math.floor(index / 4) % 2 === 0
-                      ? "bg-[#e8f2fa]"
-                      : "bg-white"
+                      ? "bg-[#e8f2fa] dark:bg-gray-700"
+                      : "bg-white dark:bg-gray-800"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <p
-                      className="font-bold text-gray-900 text-lg truncate"
+                      className="font-bold text-gray-900 dark:text-gray-200 text-lg truncate"
                       title={file.filename}
                     >
                       {file.filename.length > 15
@@ -172,19 +176,19 @@ export default function MyFiles() {
                     </p>
                     <Menu as="div" className="relative">
                       <Menu.Button
-                        className="cursor-pointer hover:bg-gray-100 rounded-full p-1"
+                        className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-1"
                         aria-label="Options"
                       >
-                        <DotsVerticalIcon className="h-5 w-5 text-gray-500" />
+                        <DotsVerticalIcon className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                       </Menu.Button>
-                      <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                      <Menu.Items className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
                         <div className="py-1">
                           <Menu.Item>
                             {({ active }) => (
                               <a
                                 onClick={() => handleFileOpen(file)}
-                                className={`block px-4 py-2 text-gray-900 hover:text-gray-800 ${
-                                  active ? "bg-gray-100" : ""
+                                className={`block px-4 py-2 text-gray-900 dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-400 ${
+                                  active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
                                 href="#"
                               >
@@ -196,8 +200,8 @@ export default function MyFiles() {
                             {({ active }) => (
                               <a
                                 href={`/api/files/ServeDownloads?filename=${file.filename}`}
-                                className={`block px-4 py-2 text-blue-600 hover:text-blue-800 ${
-                                  active ? "bg-gray-100" : ""
+                                className={`block px-4 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600 ${
+                                  active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
                               >
                                 Download
@@ -207,8 +211,8 @@ export default function MyFiles() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
-                                className={`block px-4 py-2 text-red-600 hover:text-red-800 ${
-                                  active ? "bg-gray-100" : ""
+                                className={`block px-4 py-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-600 ${
+                                  active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
                                 href="#"
                               >
@@ -220,8 +224,8 @@ export default function MyFiles() {
                             {({ active }) => (
                               <a
                                 onClick={() => handleProperties(file)}
-                                className={`block px-4 py-2 text-gray-600 ${
-                                  active ? "bg-gray-100" : ""
+                                className={`block px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-600 ${
+                                  active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
                               >
                                 Properties
@@ -232,7 +236,7 @@ export default function MyFiles() {
                       </Menu.Items>
                     </Menu>
                   </div>
-                  <div className="w-full h-36 mb-4 flex items-center justify-center bg-gray-100 rounded-lg">
+                  <div className="w-full h-36 mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg">
                     {getFileIcon(file)}
                   </div>
                 </div>
@@ -242,19 +246,19 @@ export default function MyFiles() {
         </main>
 
         {showSidebar && selectedFile && (
-          <aside className="fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white shadow-lg overflow-y-auto">
+          <aside className="fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-800">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                   File Properties
                 </h3>
                 <button
                   onClick={() => setShowSidebar(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-500"
+                    className="h-5 w-5 text-gray-500 dark:text-gray-300"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -268,25 +272,25 @@ export default function MyFiles() {
               </div>
               <div className="flex flex-col items-center mb-6">
                 {getFileIcon(selectedFile)}
-                <h4 className="text-lg font-medium text-gray-800 mt-4 text-center">
+                <h4 className="text-lg font-medium text-gray-800 dark:text-gray-200 mt-4 text-center">
                   {selectedFile.filename}
                 </h4>
               </div>
               <div className="space-y-4">
                 <div className="border-t pt-4">
-                  <h5 className="text-sm font-medium text-gray-500 mb-2">
+                  <h5 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                     File Details
                   </h5>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Size</span>
-                      <span className="text-gray-800">
+                      <span className="text-gray-600 dark:text-gray-400">Size</span>
+                      <span className="text-gray-800 dark:text-gray-200">
                         {(selectedFile.length / 1024).toFixed(2)} KB
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Type</span>
-                      <span className="text-gray-800">
+                      <span className="text-gray-600 dark:text-gray-400">Type</span>
+                      <span className="text-gray-800 dark:text-gray-200">
                         {selectedFile.filetype || "Unknown"}
                       </span>
                     </div>
@@ -312,7 +316,7 @@ export default function MyFiles() {
                   e.stopPropagation(); // Stop event from bubbling up
                   setIsPreviewOpen(false);
                 }}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-50"
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-50"
               >
                 <XMarkIcon className="w-10 h-10 text-red-600" />
               </button>
@@ -324,7 +328,9 @@ export default function MyFiles() {
                   >
                     {previewFile.filename}
                   </p>
-                </div>
+                </div> 
+                
+
                 <Image
                   src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
                   alt={previewFile.filename}
@@ -332,6 +338,7 @@ export default function MyFiles() {
                   className="object-contain"
                   sizes="80vw"
                 />
+
               </div>
             </div>
           </div>
