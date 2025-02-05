@@ -1,4 +1,3 @@
-
 // Import necessary modules
 import clientPromise from '../../../mongodb'; // MongoDB connection utility
 import { GridFSBucket } from 'mongodb'; // GridFS for storing files
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
     for (const file of files) {
       // Open an upload stream for each file
       const uploadStream = bucket.openUploadStream(file.name, {
-        metadata: { type: file.type, uploadedAt: new Date() }, // Attach metadata to the file
+        contentType: file.type  // Store content type directly
       });
 
       // Convert the file to an ArrayBuffer, then to a Buffer for uploading
@@ -63,24 +62,32 @@ export async function POST(request: Request) {
 }
 
 // Handle GET request (file retrieval and metadata fetching)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db();
-    const collection = db.collection('uploads.files');
-    const files = await collection.find({}).toArray();
+    const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
 
-    return new Response(
-      JSON.stringify({ success: true, files }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    // Get all files from GridFS
+    const files = await bucket.find({}).toArray();
+
+    // Map the files to include necessary fields including metadata
+    const filesData = files.map(file => ({
+      _id: file._id.toString(),
+      filename: file.filename,
+      length: file.length,
+      mimetype: file.contentType || 'Unknown'  // Get content type directly
+    }));
+
+    return new Response(JSON.stringify({ success: true, files: filesData }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    console.error('Error during file retrieval:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: 'Error retrieving files' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Error fetching files:', error);
+    return new Response(JSON.stringify({ success: false, error: 'Failed to fetch files' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 

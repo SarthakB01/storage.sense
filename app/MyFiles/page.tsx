@@ -20,7 +20,7 @@ export default function MyFiles() {
     _id: string;
     filename: string;
     size: number;
-    filetype: string;
+    mimetype: string;  // Changed from metadata.mimetype
   }
 
   const [files, setFiles] = useState<File[]>([]);
@@ -38,6 +38,36 @@ export default function MyFiles() {
   const handleFileOpen = (file: File) => {
     setPreviewFile(file);
     setIsPreviewOpen(true);
+  };
+
+  const handleDelete = async (fileId: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this file?"
+    );
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("/api/files/DeleteFiles", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove the file from the frontend state
+        setFiles(files.filter((file) => file._id !== fileId));
+        alert("File deleted successfully");
+      } else {
+        alert(`Error deleting file: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error deleting file");
+    }
   };
 
   useEffect(() => {
@@ -74,7 +104,6 @@ export default function MyFiles() {
             className="object-cover rounded-lg"
             sizes="96px"
             onError={(e) => {
-              // TypeScript requires type assertion for error event
               const target = e.target as HTMLImageElement;
               target.src = "/fallback-image.png";
             }}
@@ -95,15 +124,17 @@ export default function MyFiles() {
       );
     } else {
       return (
-        <div className="w-24 h-24 flex items-center justify-center bg-gray-200 rounded-lg text-gray-500 font-bold text-xl">
-          FILE
+        <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-lg">
+          <span className="text-black dark:text-white  text-xl font-bold">
+            Preview Not Available
+          </span>
         </div>
       );
     }
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] dark:from-gray-800 dark:to-gray-900">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900">
       <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
@@ -147,18 +178,16 @@ export default function MyFiles() {
             Back to Home
           </Link>
         </div>
-
-
-        
       </header>
 
       <div className="flex-1 relative overflow-auto pt-[88px]">
         <main
-          className={`min-h-full bg-white dark:bg-gray-800 transition-all duration-300  ${
-            showSidebar ? "mr-[400px]" : ""
+          className={`min-h-full  bg-white dark:bg-gray-800 transition-all duration-300  ${
+            showSidebar ? "mr-[400px] rounded-tr-xl rounded-br-xl" : ""
           }`}
+          // style={{ backgroundColor: "white" }}
         >
-          <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="rounded-tr-xl rounded-br-xl max-w-7xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-semibold text-[#1B262C] dark:text-white mb-6">
               My Files
             </h1>
@@ -221,6 +250,7 @@ export default function MyFiles() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
+                                onClick={() => handleDelete(file._id)}
                                 className={`block px-4 py-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-600 ${
                                   active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
@@ -230,6 +260,7 @@ export default function MyFiles() {
                               </a>
                             )}
                           </Menu.Item>
+
                           <Menu.Item>
                             {({ active }) => (
                               <a
@@ -246,7 +277,7 @@ export default function MyFiles() {
                       </Menu.Items>
                     </Menu>
                   </div>
-                  <div className="w-full h-36 mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="w-full scale-105 h-36 mb-2 flex items-center justify-center dark:bg-gray-700 rounded-lg">
                     {getFileIcon(file)}
                   </div>
                 </div>
@@ -256,10 +287,10 @@ export default function MyFiles() {
         </main>
 
         {showSidebar && selectedFile && (
-          <aside className="fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
+          <aside className=" rounded-tl-xl rounded-bl-xl  fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
             <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              <div className=" flex justify-between items-center mb-6">
+                <h3 className="  text-xl font-semibold text-gray-800 dark:text-gray-200">
                   File Properties
                 </h3>
                 <button
@@ -288,7 +319,7 @@ export default function MyFiles() {
               </div>
               <div className="space-y-4">
                 <div className="border-t pt-4">
-                  <h5 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  <h5 className="text-l font-bold  text-gray-800 dark:text-gray-400 mb-2">
                     File Details
                   </h5>
                   <div className="space-y-2">
@@ -300,12 +331,22 @@ export default function MyFiles() {
                         {(selectedFile.length / 1024).toFixed(2)} KB
                       </span>
                     </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400 block">
+                        File ID:
+                      </span>
+                      <span className="text-gray-600 dark:text-gray-400 block">
+                        {selectedFile._id}
+                      </span>
+                    </div>
+
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">
                         Type
                       </span>
                       <span className="text-gray-800 dark:text-gray-200">
-                        {selectedFile.filetype || "Unknown"}
+                        {selectedFile.mimetype || "Unknown"}
                       </span>
                     </div>
                   </div>
@@ -324,7 +365,7 @@ export default function MyFiles() {
               }
             }}
           >
-            <div className="bg-white p-4 rounded-lg w-4/5 h-4/5 relative">
+            <div className="bg-gray-200 dark:bg-gray-500 p-4 rounded-lg w-4/5 h-4/5 relative">
               <button
                 onClick={(e) => {
                   e.stopPropagation(); // Stop event from bubbling up
@@ -334,23 +375,32 @@ export default function MyFiles() {
               >
                 <XMarkIcon className="w-10 h-10 text-red-600" />
               </button>
-              <div className="relative w-full h-full">
-                <div className="absolute top-4 left-4 p-3 bg-black bg-opacity-50 text-white rounded-lg max-w-[80%] z-10">
+              <div className="relative w-full h-full ">
+                <div className="absolute top-4 left-4 p-3 bg-black bg-opacity-50 text-white rounded-lg max-w-[80%] z-10 ">
                   <p
-                    className="truncate font-medium"
+                    className="truncate font-medium "
                     title={previewFile.filename}
                   >
                     {previewFile.filename}
                   </p>
                 </div>
 
-                <Image
-                  src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
-                  alt={previewFile.filename}
-                  fill
-                  className="object-contain"
-                  sizes="80vw"
-                />
+                <div className="relative w-full h-full flex justify-center items-center">
+                  <Image
+                    src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
+                    alt="Preview not available for this file."
+                    fill={true}
+                    className="object-contain rounded-lg"
+                    sizes="80vw"
+                  />
+
+                  {(previewFile.filename.endsWith(".pdf") ||
+                    previewFile.filename.endsWith(".docx")) && (
+                    <span className="absolute text-black dark:text-white font-bold text-2xl text-center">
+                      Preview not available for this file.
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
