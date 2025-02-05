@@ -21,7 +21,7 @@ export default function DarkModeToggle() {
       className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
     >
       {theme === 'dark' ? (
-        <SunIcon className="h-6 w-6 " />
+        <SunIcon className="h-6 w-6" />
       ) : (
         <MoonIcon className="h-6 w-6 text-black" />
       )}

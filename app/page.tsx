@@ -181,7 +181,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col place-items-center justify-center px-4 py-8">
+      <main className="flex-grow flex flex-col place-items-center justify-center px-4 py-8 overflow-y-auto">
         <div className="flex w-full max-w-6xl space-x-8 scale-110 ">
           {/* Folders Section (on the left) */}
           <aside className="bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg w-96">

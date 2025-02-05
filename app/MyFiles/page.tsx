@@ -4,11 +4,15 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeftIcon, XMarkIcon, EllipsisVerticalIcon as DotsVerticalIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowLeftIcon,
+  XMarkIcon,
+  EllipsisVerticalIcon as DotsVerticalIcon,
+} from "@heroicons/react/24/solid";
 import { Menu } from "@headlessui/react";
-import { useTheme } from 'next-themes';
-import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
-import DarkModeToggle from '../components/DarkModeToggle';
+import { useTheme } from "next-themes";
+import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 export default function MyFiles() {
   interface File {
@@ -99,7 +103,7 @@ export default function MyFiles() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] dark:from-gray-800 dark:to-gray-900 pt-[88px]">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#3282B8] dark:from-gray-800 dark:to-gray-900">
       <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
@@ -127,9 +131,12 @@ export default function MyFiles() {
             <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
               STORAGE
             </span>
-            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">Sense</span>
+            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">
+              Sense
+            </span>
           </h1>
         </div>
+
         <div className="flex items-center space-x-6">
           <DarkModeToggle />
           <Link
@@ -140,11 +147,14 @@ export default function MyFiles() {
             Back to Home
           </Link>
         </div>
+
+
+        
       </header>
 
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-auto pt-[88px]">
         <main
-          className={`h-full bg-white dark:bg-gray-800 transition-all duration-300 ${
+          className={`min-h-full bg-white dark:bg-gray-800 transition-all duration-300  ${
             showSidebar ? "mr-[400px]" : ""
           }`}
         >
@@ -246,7 +256,7 @@ export default function MyFiles() {
         </main>
 
         {showSidebar && selectedFile && (
-          <aside className="fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg overflow-y-auto">
+          <aside className="fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
@@ -283,13 +293,17 @@ export default function MyFiles() {
                   </h5>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Size</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Size
+                      </span>
                       <span className="text-gray-800 dark:text-gray-200">
                         {(selectedFile.length / 1024).toFixed(2)} KB
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Type</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Type
+                      </span>
                       <span className="text-gray-800 dark:text-gray-200">
                         {selectedFile.filetype || "Unknown"}
                       </span>
@@ -303,7 +317,7 @@ export default function MyFiles() {
 
         {isPreviewOpen && previewFile && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center "
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setIsPreviewOpen(false);
@@ -328,8 +342,7 @@ export default function MyFiles() {
                   >
                     {previewFile.filename}
                   </p>
-                </div> 
-                
+                </div>
 
                 <Image
                   src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
@@ -338,7 +351,6 @@ export default function MyFiles() {
                   className="object-contain"
                   sizes="80vw"
                 />
-
               </div>
             </div>
           </div>
