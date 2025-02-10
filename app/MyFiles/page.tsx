@@ -29,7 +29,7 @@ export default function MyFiles() {
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
-
+  
   const handleProperties = (file: File) => {
     setSelectedFile(file);
     setShowSidebar(true);

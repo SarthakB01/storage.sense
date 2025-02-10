@@ -5,6 +5,15 @@ import { ThemeProvider } from 'next-themes';
 import "./globals.css";
 import { useEffect, useState } from 'react';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
+
+
+
+
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
