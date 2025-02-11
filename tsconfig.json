@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     // "target": "ES2017",
+    "typeRoots": ["./node_modules/@types", "./types"],
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "node",
@@ -29,6 +30,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "mongodb.ts", "app/api/files/displayFiles/route.ts", "test2.ts", "app/folder/Component1/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "mongodb.ts", "app/api/files/displayFiles/route.ts", "test2.ts", "app/folder/Component1/page.tsx"],
   "exclude": ["node_modules"]
 }

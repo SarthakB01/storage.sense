@@ -190,9 +190,9 @@ export default function Home() {
             </h2>
             <ul className="space-y-3 text-gray-600 dark:text-gray-300">
               <li>
-                <Link href="/folder/Component1">
+                <Link href="/Convert_Docs_Frontend">
                   <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                    Folder 1
+                    Convert PDF to WORD
                   </span>
                 </Link>
               </li>

@@ -20,7 +20,7 @@ export default function MyFiles() {
     _id: string;
     filename: string;
     size: number;
-    mimetype: string;  // Changed from metadata.mimetype
+    mimetype: string; // Changed from metadata.mimetype
   }
 
   const [files, setFiles] = useState<File[]>([]);
@@ -29,7 +29,7 @@ export default function MyFiles() {
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
-  
+
   const handleProperties = (file: File) => {
     setSelectedFile(file);
     setShowSidebar(true);
@@ -137,35 +137,37 @@ export default function MyFiles() {
     <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900">
       <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50">
         <div className="flex items-center space-x-3">
-          <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 10l9-7 9 7v7a4 4 0 01-4 4H7a4 4 0 01-4-4v-7z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 21V9l6 3m-6 0l6-3"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold flex items-center space-x-1">
-            <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
-              STORAGE
-            </span>
-            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">
-              Sense
-            </span>
-          </h1>
+          <Link href="/" className="flex items-center space-x-3">
+            <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 10l9-7 9 7v7a4 4 0 01-4 4H7a4 4 0 01-4-4v-7z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 21V9l6 3m-6 0l6-3"
+                />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold flex items-center space-x-1">
+              <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
+                STORAGE
+              </span>
+              <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">
+                Sense
+              </span>
+            </h1>
+          </Link>
         </div>
 
         <div className="flex items-center space-x-6">
