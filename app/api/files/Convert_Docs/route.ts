@@ -8,6 +8,7 @@ interface FormDataFile {
   arrayBuffer: () => Promise<ArrayBuffer>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface CloudConvertError extends Error {
   response?: {
     data: unknown;
@@ -25,9 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    console.log('Creating job for file:', file.name);
-
-    // Create a job with all tasks
+    // Create job with tasks
     const job = await cloudConvert.jobs.create({
       tasks: {
         'import-my-file': {
@@ -47,67 +46,41 @@ export async function POST(req: Request) {
       }
     });
 
-    console.log('Job created:', job.id);
+    // Upload file
+    const uploadTask = job.tasks.find(task => task.operation === 'import/upload');
+    if (!uploadTask) throw new Error('Upload task not found');
 
-    // Get the upload task
-    const uploadTask = job.tasks.filter(task => task.operation === 'import/upload')[0];
-    console.log('Upload task created:', uploadTask.id);
-
-    // Convert the file to a Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const readable = Readable.from(buffer);
-
-    // Upload the file
-    console.log('Starting file upload...');
+    
     await cloudConvert.tasks.upload(uploadTask, readable, file.name);
-    console.log('File uploaded successfully');
 
-    // Wait for job completion
-    console.log('Waiting for job completion...');
+    // Wait and check job status
     const jobResult = await cloudConvert.jobs.wait(job.id);
-    console.log('Job completed. Status:', jobResult.status);
-
-    // Log all tasks and their statuses
-    jobResult.tasks.forEach(task => {
-      console.log(`Task ${task.operation} status:`, task.status);
-      if (task.result) {
-        console.log(`Task ${task.operation} result:`, task.result);
-      }
-    });
-
-    // Get the export task
-    const exportTask = jobResult.tasks.filter(task => task.operation === 'export/url')[0];
-
-    if (!exportTask) {
-      throw new Error('Export task not found in job result');
+    
+    // Check if any task failed
+    const failedTask = jobResult.tasks.find(task => task.status === 'error');
+    if (failedTask) {
+      throw new Error(`Task ${failedTask.operation} failed: ${failedTask.message || 'Unknown error'}`);
     }
 
-    if (!exportTask.result) {
-      throw new Error(`Export task failed with status: ${exportTask.status}`);
-    }
-
-    if (!exportTask.result.files || exportTask.result.files.length === 0) {
-      throw new Error('No files found in export task result');
-    }
-
-    if (!exportTask.result.files[0].url) {
-      throw new Error('No URL found in export task result file');
+    // Get export task result
+    const exportTask = jobResult.tasks.find(task => task.operation === 'export/url');
+    if (!exportTask?.result?.files?.[0]?.url) {
+      throw new Error('No converted file URL found');
     }
 
     const fileUrl = exportTask.result.files[0].url;
-    console.log('Conversion successful. File URL:', fileUrl);
+    return NextResponse.json({ convertedFileUrl: fileUrl });
 
   } catch (error) {
     console.error('Error in conversion:', error);
-    // If error is from CloudConvert API, it might have more details
-    if (error instanceof Error && 'response' in error) {
-      const apiError = error as CloudConvertError;
-      console.error('API Error details:', apiError.response?.data);
-    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json({ 
       error: 'Conversion failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      message: errorMessage
     }, { status: 500 });
   }
 }

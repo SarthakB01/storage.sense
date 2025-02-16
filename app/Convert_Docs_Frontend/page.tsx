@@ -7,6 +7,7 @@ export default function ConvertDocs() {
   const [file, setFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
   const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -22,20 +23,32 @@ export default function ConvertDocs() {
     if (!file) return;
 
     setConverting(true);
+    setError(null);
+    setConvertedUrl(null);
+    
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/files/Convert_Docs', {
+      // Update this endpoint when you implement the new conversion service
+      const response = await fetch('/api/convert/pdf-to-word', {
         method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Conversion failed');
+      }
+
       if (data.convertedFileUrl) {
         setConvertedUrl(data.convertedFileUrl);
+      } else {
+        throw new Error('Conversion failed - no URL received');
       }
     } catch (error) {
+      setError(error instanceof Error ? error.message : 'Conversion failed');
       console.error('Conversion error:', error);
     } finally {
       setConverting(false);
@@ -78,6 +91,12 @@ export default function ConvertDocs() {
           >
             {converting ? 'Converting...' : 'Convert to Word'}
           </button>
+        )}
+
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 dark:bg-red-900 rounded-lg">
+            <p className="text-red-600 dark:text-red-200">{error}</p>
+          </div>
         )}
 
         {convertedUrl && (
