@@ -30,6 +30,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "mongodb.ts", "app/api/files/displayFiles/route.ts", "test2.ts", "app/folder/Component1/page.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "mongodb.ts", "app/api/files/displayFiles/route.ts", "test2.ts", "app/folder/Component1/page.tsx", "app/api/files/Convert_docs/pdftoword/route.ts"],
   "exclude": ["node_modules"]
 }

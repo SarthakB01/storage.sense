@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
+import { ButtonProgress } from "../components/ButtonProgress";
+
+
 export default function ConvertDocs() {
   const [file, setFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
@@ -26,7 +29,7 @@ export default function ConvertDocs() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/files/Convert_Docs', {
+      const response = await fetch('/api/files/Convert_docs/pdftoword', {
         method: 'POST',
         body: formData,
       });
@@ -53,6 +56,7 @@ export default function ConvertDocs() {
           {file ? (
             <div>
               <p className="text-gray-700 dark:text-gray-300">Selected file: {file.name}</p>
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -71,24 +75,20 @@ export default function ConvertDocs() {
         </div>
 
         {file && (
-          <button
-            onClick={handleConvert}
-            disabled={converting}
-            className="mt-4 w-full bg-[#0F4C75] hover:bg-[#1B262C] text-white py-2 px-4 rounded-lg disabled:bg-gray-400"
-          >
-            {converting ? 'Converting...' : 'Convert to Word'}
-          </button>
+          <>
+          <ButtonProgress onClick={handleConvert} disabled={converting} />
+          </>
         )}
 
         {convertedUrl && (
-          <div className="mt-4 p-4 bg-green-50 dark:bg-gray-700 rounded-lg">
+          <div className="mt-4 p-4 bg-green-50  dark:bg-gray-900 rounded-lg">
             <p className="text-gray-800 dark:text-gray-200 mb-2">Conversion complete!</p>
             <a
               href={convertedUrl}
               download
               className="text-blue-500 hover:text-blue-700 underline"
             >
-              Download converted file
+              Download {file?.name || 'converted file'}
             </a>
           </div>
         )}
