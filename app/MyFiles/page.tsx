@@ -187,7 +187,6 @@ export default function MyFiles() {
           className={`min-h-full  bg-white dark:bg-gray-800 transition-all duration-300  ${
             showSidebar ? "mr-[400px] rounded-tr-xl rounded-br-xl" : ""
           }`}
-          // style={{ backgroundColor: "white" }}
         >
           <div className="rounded-tr-xl rounded-br-xl max-w-7xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-semibold text-[#1B262C] dark:text-white mb-6">
@@ -198,11 +197,12 @@ export default function MyFiles() {
               {files.map((file, index) => (
                 <div
                   key={file._id}
-                  className={`border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center shadow-lg ${
+                  className={`border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center shadow-lg cursor-pointer transform transition-transform hover:scale-105 ${
                     Math.floor(index / 4) % 2 === 0
                       ? "bg-[#e8f2fa] dark:bg-gray-700"
                       : "bg-white dark:bg-gray-800"
                   }`}
+                  onClick={() => handleFileOpen(file)}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <p
@@ -219,6 +219,7 @@ export default function MyFiles() {
                       <Menu.Button
                         className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-1"
                         aria-label="Options"
+                        onClick={(e) => e.stopPropagation()} // Prevent file opening when clicking the menu button
                       >
                         <DotsVerticalIcon className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                       </Menu.Button>
@@ -227,7 +228,10 @@ export default function MyFiles() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
-                                onClick={() => handleFileOpen(file)}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent file opening
+                                  handleFileOpen(file);
+                                }}
                                 className={`block px-4 py-2 text-gray-900 dark:text-gray-200 hover:text-gray-800 dark:hover:text-gray-400 ${
                                   active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
@@ -244,6 +248,7 @@ export default function MyFiles() {
                                 className={`block px-4 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600 ${
                                   active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
+                                onClick={(e) => e.stopPropagation()} // Prevent file opening
                               >
                                 Download
                               </a>
@@ -252,7 +257,10 @@ export default function MyFiles() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
-                                onClick={() => handleDelete(file._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent file opening
+                                  handleDelete(file._id);
+                                }}
                                 className={`block px-4 py-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-600 ${
                                   active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
@@ -266,7 +274,10 @@ export default function MyFiles() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
-                                onClick={() => handleProperties(file)}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent file opening
+                                  handleProperties(file);
+                                }}
                                 className={`block px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-600 ${
                                   active ? "bg-gray-100 dark:bg-gray-700" : ""
                                 }`}
@@ -289,10 +300,10 @@ export default function MyFiles() {
         </main>
 
         {showSidebar && selectedFile && (
-          <aside className=" rounded-tl-xl rounded-bl-xl  fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
+          <aside className="rounded-tl-xl rounded-bl-xl fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
             <div className="p-6">
-              <div className=" flex justify-between items-center mb-6">
-                <h3 className="  text-xl font-semibold text-gray-800 dark:text-gray-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                   File Properties
                 </h3>
                 <button
@@ -320,8 +331,17 @@ export default function MyFiles() {
                 </h4>
               </div>
               <div className="space-y-4">
-                <div className="border-t pt-4">
-                  <h5 className="text-l font-bold  text-gray-800 dark:text-gray-400 mb-2">
+                <div className="pt-4">
+                  <button
+                    onClick={() => {
+                      handleFileOpen(selectedFile);
+                      setShowSidebar(false);
+                    }}
+                    className="w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors"
+                  >
+                    Open
+                  </button>
+                  <h5 className="text-l font-bold border-t pt-4 text-gray-800 dark:text-gray-400 mb-2">
                     File Details
                   </h5>
                   <div className="space-y-2">
