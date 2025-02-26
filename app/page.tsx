@@ -22,7 +22,7 @@ import {
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import DarkModeToggle from "@/app/components/DarkModeToggle";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import TimerStopwatch from "@/app/components/TimerStopwatch";
 
 type Task = {
   id: number;
@@ -186,22 +186,19 @@ export default function Home() {
             {/* File Upload Section */}
             <div
               {...getRootProps()}
-              className={`w-full h-64 border-2 ${
-                isDragActive
-                  ? "border-[#0F4C75]"
-                  : "border-dashed border-gray-300 dark:border-gray-600"
-              } rounded-lg flex flex-col items-center justify-center gap-4 transition duration-300 ${
-                isDragActive ? "shadow-lg bg-[#BBE1FA]" : ""
-              }`}
+              className={`w-full h-64 border-2 ${isDragActive
+                ? "border-[#0F4C75]"
+                : "border-dashed border-gray-300 dark:border-gray-600"
+                } rounded-lg flex flex-col items-center justify-center gap-4 transition duration-300 ${isDragActive ? "shadow-lg bg-[#BBE1FA]" : ""
+                }`}
             >
               <input {...getInputProps()} />
               {files.length === 0 ? (
                 <div className="text-center">
                   <CloudArrowUpIcon className="h-24 w-24 ml-14 text-gray-400 dark:text-gray-500" />
                   <p
-                    className={`text-2xl font-semibold ${
-                      isDragActive ? "text-[#0F4C75]" : "text-gray-600 dark:text-gray-300"
-                    }`}
+                    className={`text-2xl font-semibold ${isDragActive ? "text-[#0F4C75]" : "text-gray-600 dark:text-gray-300"
+                      }`}
                   >
                     {isDragActive
                       ? "Release to Upload"
@@ -234,8 +231,8 @@ export default function Home() {
                         <span className="font-medium text-gray-600 dark:text-gray-300">
                           {file.name.length > 15
                             ? `${file.name.substring(0, 15)}...${file.name
-                                .split(".")
-                                .pop()}`
+                              .split(".")
+                              .pop()}`
                             : file.name}
                         </span>
                       </div>
@@ -264,11 +261,10 @@ export default function Home() {
                 <button
                   onClick={handleUpload}
                   disabled={isUploading}
-                  className={`mt-4 py-2 px-6 font-bold text-white bg-[#0F4C75] rounded-lg transition duration-300 ${
-                    isUploading
-                      ? "cursor-not-allowed bg-gray-500"
-                      : "hover:bg-[#1B262C]"
-                  }`}
+                  className={`mt-4 py-2 px-6 font-bold text-white bg-[#0F4C75] rounded-lg transition duration-300 ${isUploading
+                    ? "cursor-not-allowed bg-gray-500"
+                    : "hover:bg-[#1B262C]"
+                    }`}
                 >
                   {isUploading ? "Uploading..." : "Upload"}
                 </button>
@@ -352,82 +348,52 @@ export default function Home() {
             </div>
 
             {/* Task List */}
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="tasks">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-                    {filteredTasks.map((task, index) => (
-                      <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={task.completed}
-                              onChange={() => toggleTaskCompletion(task.id)}
-                              className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                            />
-                            <span
-                              className={`ml-3 flex-grow ${
-                                task.completed ? "line-through text-gray-500 dark:text-gray-400" : "text-gray-800 dark:text-gray-200"
-                              }`}
-                            >
-                              {task.text}
-                            </span>
-                            {task.dueDate && (
-                              <span className="ml-3 text-sm text-gray-500 dark:text-gray-400">
-                                Due: {new Date(task.dueDate).toLocaleDateString()}
-                              </span>
-                            )}
-                            <span
-                              className={`ml-3 text-sm font-medium ${
-                                task.priority === "high"
-                                  ? "text-red-500"
-                                  : task.priority === "medium"
-                                  ? "text-yellow-500"
-                                  : "text-green-500"
-                              }`}
-                            >
-                              {task.priority}
-                            </span>
-                            <button
-                              onClick={() => deleteTask(task.id)}
-                              className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-        );
-      case "timer":
-        return (
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Timer & Stopwatch</h2>
-            <div className="text-center">
-              <div className="text-5xl font-bold text-gray-800 dark:text-white mb-6">25:00</div>
-              <div className="flex justify-center space-x-4">
-                <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                  Start
-                </button>
-                <button className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                  Reset
-                </button>
-              </div>
+            <div className="space-y-3">
+              {filteredTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                >
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTaskCompletion(task.id)}
+                    className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                  />
+                  <span
+                    className={`ml-3 flex-grow ${task.completed ? "line-through text-gray-500 dark:text-gray-400" : "text-gray-800 dark:text-gray-200"
+                      }`}
+                  >
+                    {task.text}
+                  </span>
+                  {task.dueDate && (
+                    <span className="ml-3 text-sm text-gray-500 dark:text-gray-400">
+                      Due: {new Date(task.dueDate).toLocaleDateString()}
+                    </span>
+                  )}
+                  <span
+                    className={`ml-3 text-sm font-medium ${task.priority === "high"
+                      ? "text-red-500"
+                      : task.priority === "medium"
+                        ? "text-yellow-500"
+                        : "text-green-500"
+                      }`}
+                  >
+                    {task.priority}
+                  </span>
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         );
+      case "timer":
+        return <TimerStopwatch />;
       case "analytics":
         return (
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
@@ -619,51 +585,46 @@ export default function Home() {
           <div className="flex space-x-4 mb-6">
             <button
               onClick={() => setActiveTab("storage")}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "storage"
-                  ? "bg-[#0F4C75] text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg ${activeTab === "storage"
+                ? "bg-[#0F4C75] text-white"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                }`}
             >
               Storage
             </button>
             <button
               onClick={() => setActiveTab("calendar")}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "calendar"
-                  ? "bg-[#0F4C75] text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg ${activeTab === "calendar"
+                ? "bg-[#0F4C75] text-white"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                }`}
             >
               Calendar
             </button>
             <button
               onClick={() => setActiveTab("tasks")}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "tasks"
-                  ? "bg-[#0F4C75] text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg ${activeTab === "tasks"
+                ? "bg-[#0F4C75] text-white"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                }`}
             >
               Tasks
             </button>
             <button
               onClick={() => setActiveTab("timer")}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "timer"
+              className={`px-4 py-2 rounded-lg ${activeTab === "timer"
                   ? "bg-[#0F4C75] text-white"
                   : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-              }`}
+                }`}
             >
               Timer
             </button>
             <button
               onClick={() => setActiveTab("analytics")}
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "analytics"
-                  ? "bg-[#0F4C75] text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg ${activeTab === "analytics"
+                ? "bg-[#0F4C75] text-white"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                }`}
             >
               Analytics
             </button>
