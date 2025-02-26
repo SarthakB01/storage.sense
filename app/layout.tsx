@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { MantineProvider } from "@mantine/core"; // ✅ Import MantineProvider
 import "./globals.css";
+import { TimerProvider } from './context/TimerContext'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -31,9 +32,10 @@ export default function RootLayout({
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <MantineProvider >
-              {children}
+              <TimerProvider>
+                {children}
+              </TimerProvider>
             </MantineProvider>
-
           </ThemeProvider>
         </SessionProvider>
       </body>
