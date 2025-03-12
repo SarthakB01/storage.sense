@@ -24,6 +24,8 @@ import { useTheme } from "next-themes";
 import DarkModeToggle from "@/app/components/DarkModeToggle";
 import TimerStopwatch from "@/app/components/TimerStopwatch";
 
+import MyFiles from "@/app/MyFiles/page";
+
 type Task = {
   id: number;
   text: string;
@@ -184,6 +186,7 @@ export default function Home() {
         return (
           <>
             {/* File Upload Section */}
+
             <div
               {...getRootProps()}
               className={`w-full h-64 border-2 ${isDragActive
@@ -195,6 +198,7 @@ export default function Home() {
               <input {...getInputProps()} />
               {files.length === 0 ? (
                 <div className="text-center">
+
                   <CloudArrowUpIcon className="h-24 w-24 ml-14 text-gray-400 dark:text-gray-500" />
                   <p
                     className={`text-2xl font-semibold ${isDragActive ? "text-[#0F4C75]" : "text-gray-600 dark:text-gray-300"
@@ -205,6 +209,9 @@ export default function Home() {
                       : "Drag your files here"}
                   </p>
                 </div>
+
+
+
               ) : (
                 <ul className="mt-4 w-full space-y-3 overflow-y-auto max-h-40">
                   {files.map((file, index) => (
@@ -243,7 +250,14 @@ export default function Home() {
                   ))}
                 </ul>
               )}
+
             </div>
+
+
+
+
+
+
 
             {uploadProgress > 0 && (
               <div className="mt-6 flex justify-center">
@@ -253,7 +267,9 @@ export default function Home() {
                     style={{ width: `${uploadProgress}%` }}
                   ></div>
                 </div>
+
               </div>
+
             )}
 
             {files.length > 0 && (
@@ -268,13 +284,22 @@ export default function Home() {
                 >
                   {isUploading ? "Uploading..." : "Upload"}
                 </button>
+
               </div>
+
             )}
+
+            {/* Uploaded Files Section */}
+
+
           </>
+
         );
+
       case "calendar":
         return (
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Calendar</h2>
             <div className="grid grid-cols-7 gap-1">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -331,6 +356,7 @@ export default function Home() {
               >
                 <PlusIcon className="h-5 w-5" />
               </button>
+
             </div>
 
             {/* Search Bar */}
@@ -443,9 +469,11 @@ export default function Home() {
           </div>
           <h1 className="text-3xl font-bold flex items-center space-x-1">
             <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
-              WORKSPACE
+              STORAGE
             </span>
-            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">Pro</span>
+            <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">
+              Sense
+            </span>
           </h1>
         </div>
 
@@ -517,121 +545,356 @@ export default function Home() {
       <main className="flex-grow flex overflow-y-auto mt-6 mb-6">
         {/* Left Sidebar - Fixed to the left */}
         <aside className="w-64 bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg ml-6">
+          {/* Tools Section */}
           <h2 className="text-xl font-bold text-[#1B262C] dark:text-white mb-4">
-            Your Folders
+            Tools
           </h2>
+
           <ul className="space-y-3 text-gray-600 dark:text-gray-300">
             <li>
-              <Link href="/Convert_Docs_Frontend">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  Convert PDF to WORD
-                </span>
-              </Link>
+              <button
+                onClick={() => setActiveTab("timer")}
+                className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold"
+              >
+                <ClockIcon className="h-5 w-5" />
+                <span>Timer</span>
+              </button>
             </li>
             <li>
-              <Link href="/folder/Component2">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  Folder 2
-                </span>
-              </Link>
+              <button
+                onClick={() => setActiveTab("calendar")}
+                className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold"
+              >
+                <CalendarIcon className="h-5 w-5" />
+                <span>Calendar</span>
+              </button>
             </li>
             <li>
-              <Link href="/folder/Component3">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  Folder 3
-                </span>
-              </Link>
+              <button
+                onClick={() => setActiveTab("tasks")}
+                className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold"
+              >
+                <CheckCircleIcon className="h-5 w-5" />
+                <span>Tasks</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveTab("analytics")}
+                className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold"
+              >
+                <ChartBarIcon className="h-5 w-5" />
+                <span>Analytics</span>
+              </button>
             </li>
           </ul>
 
+          {/* Storage Section */}
           <h2 className="text-xl font-bold text-[#1B262C] dark:text-white mt-6 mb-4">
-            Your Storage
+            Storage
           </h2>
           <ul className="space-y-3 text-gray-600 dark:text-gray-300">
             <li>
               <Link href="/MyFiles">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  My Files
+                <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
+                  <PaperClipIcon className="h-5 w-5" />
+                  <span>My Files</span>
                 </span>
               </Link>
             </li>
             <li>
               <Link href="/uploads">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  Uploads
+                <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
+                  <CloudArrowUpIcon className="h-5 w-5" />
+                  <span>Uploads</span>
+
                 </span>
               </Link>
+
             </li>
             <li>
               <Link href="/api/files/resize">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  Resize Images
+                <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
+                  <ArrowUpIcon className="h-5 w-5" />
+                  <span>Resize Images</span>
                 </span>
               </Link>
             </li>
             <li>
               <Link href="/api/files/manage">
-                <span className="hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
-                  Manage Files
+                <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
+                  <TrashIcon className="h-5 w-5" />
+                  <span>Manage Files</span>
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/Convert_Docs_Frontend">
+                <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
+                  <ArrowDownIcon className="h-5 w-5" />
+                  <span>Convert PDF to Word</span>
                 </span>
               </Link>
             </li>
           </ul>
         </aside>
 
+
         {/* Right Section - Takes remaining space */}
         <div className="flex-grow bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg mx-6 overflow-y-auto">
-          {/* Tabs for Navigation */}
-          <div className="flex space-x-4 mb-6">
-            <button
-              onClick={() => setActiveTab("storage")}
-              className={`px-4 py-2 rounded-lg ${activeTab === "storage"
-                ? "bg-[#0F4C75] text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                }`}
-            >
-              Storage
-            </button>
-            <button
-              onClick={() => setActiveTab("calendar")}
-              className={`px-4 py-2 rounded-lg ${activeTab === "calendar"
-                ? "bg-[#0F4C75] text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                }`}
-            >
-              Calendar
-            </button>
-            <button
-              onClick={() => setActiveTab("tasks")}
-              className={`px-4 py-2 rounded-lg ${activeTab === "tasks"
-                ? "bg-[#0F4C75] text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                }`}
-            >
-              Tasks
-            </button>
-            <button
-              onClick={() => setActiveTab("timer")}
-              className={`px-4 py-2 rounded-lg ${activeTab === "timer"
-                  ? "bg-[#0F4C75] text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                }`}
-            >
-              Timer
-            </button>
-            <button
-              onClick={() => setActiveTab("analytics")}
-              className={`px-4 py-2 rounded-lg ${activeTab === "analytics"
-                ? "bg-[#0F4C75] text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                }`}
-            >
-              Analytics
-            </button>
-          </div>
-
           {/* Render Active Tab Content */}
-          {renderTabContent()}
+          {activeTab === "storage" && (
+            <>
+              {/* File Upload Section */}
+              <div
+                {...getRootProps()}
+                className={`w-full h-64 border-2 ${isDragActive
+                  ? "border-[#0F4C75]"
+                  : "border-dashed border-gray-300 dark:border-gray-600"
+                  } rounded-lg flex flex-col items-center justify-center gap-4 transition duration-300 ${isDragActive ? "shadow-lg bg-[#BBE1FA]" : ""
+                  }`}
+              >
+                <input {...getInputProps()} />
+
+                {files.length === 0 ? (
+                  <div className="text-center">
+                    <CloudArrowUpIcon className="h-24 w-24 ml-14 text-gray-400 dark:text-gray-500" />
+
+                    <p
+                      className={`text-2xl font-semibold ${isDragActive ? "text-[#0F4C75]" : "text-gray-600 dark:text-gray-300"
+                        }`}
+                    >
+                      {isDragActive ? "Release to Upload" : "Drag your files here"}
+                    </p>
+
+                  </div>
+
+                ) : (
+                  <ul className="mt-4 w-full space-y-3 overflow-y-auto max-h-40">
+                    {files.map((file, index) => (
+                      <li
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow"
+                      >
+                        <div className="flex items-center space-x-4 scale-110 ml-4 ">
+                          {file.type.startsWith("image/") ? (
+                            <Image
+                              src={URL.createObjectURL(file)}
+                              alt={file.name}
+                              width={40}
+                              height={40}
+                              className="object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                              <span className="font-bold text-gray-700 dark:text-gray-300">
+                                {file.name.split(".").pop()?.toUpperCase() || ""}
+                              </span>
+                            </div>
+                          )}
+                          <span className="font-medium text-gray-600 dark:text-gray-300">
+                            {file.name.length > 15
+                              ? `${file.name.substring(0, 15)}...${file.name
+                                .split(".")
+                                .pop()}`
+                              : file.name}
+                          </span>
+                        </div>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                          {(file.size / 1024).toFixed(2)} KB
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+              </div>
+              <MyFiles />
+
+              {uploadProgress > 0 && (
+                <div className="mt-6 flex justify-center">
+                  <div className="w-2/3 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                    <div
+                      className="bg-[#0F4C75] h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {files.length > 0 && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleUpload}
+                    disabled={isUploading}
+                    className={`mt-4 py-2 px-6 font-bold text-white bg-[#0F4C75] rounded-lg transition duration-300 ${isUploading
+                      ? "cursor-not-allowed bg-gray-500"
+                      : "hover:bg-[#1B262C]"
+                      }`}
+                  >
+                    {isUploading ? "Uploading..." : "Upload"}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "calendar" && (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                Calendar
+              </h2>
+              <div className="grid grid-cols-7 gap-1">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                  <div
+                    key={day}
+                    className="text-center font-medium text-gray-600 dark:text-gray-300"
+                  >
+                    {day}
+                  </div>
+                ))}
+                {Array.from({ length: 35 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="p-2 text-center text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg cursor-pointer"
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "tasks" && (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                To-Do List
+              </h2>
+
+              {/* Add Task Input */}
+              <div className="flex items-center mb-6">
+                <input
+                  type="text"
+                  placeholder="Add a new task..."
+                  value={newTaskText}
+                  onChange={(e) => setNewTaskText(e.target.value)}
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") addTask();
+                  }}
+                />
+                <select
+                  value={newTaskPriority}
+                  onChange={(e) =>
+                    setNewTaskPriority(e.target.value as "high" | "medium" | "low")
+                  }
+                  className="ml-2 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <input
+                  type="date"
+                  value={newTaskDueDate}
+                  onChange={(e) => setNewTaskDueDate(e.target.value)}
+                  className="ml-2 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                />
+                <button
+                  onClick={addTask}
+                  className="ml-2 p-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search tasks..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                  />
+                  <MagnifyingGlassIcon className="h-5 w-5 absolute right-3 top-3 text-gray-400 dark:text-gray-500" />
+                </div>
+              </div>
+
+              {/* Task List */}
+              <div className="space-y-3">
+                {filteredTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => toggleTaskCompletion(task.id)}
+                      className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                    />
+                    <span
+                      className={`ml-3 flex-grow ${task.completed
+                        ? "line-through text-gray-500 dark:text-gray-400"
+                        : "text-gray-800 dark:text-gray-200"
+                        }`}
+                    >
+                      {task.text}
+                    </span>
+                    {task.dueDate && (
+                      <span className="ml-3 text-sm text-gray-500 dark:text-gray-400">
+                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                      </span>
+                    )}
+                    <span
+                      className={`ml-3 text-sm font-medium ${task.priority === "high"
+                        ? "text-red-500"
+                        : task.priority === "medium"
+                          ? "text-yellow-500"
+                          : "text-green-500"
+                        }`}
+                    >
+                      {task.priority}
+                    </span>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "timer" && <TimerStopwatch />}
+
+          {activeTab === "analytics" && (
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                Analytics
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                    Tasks Completed
+                  </h3>
+                  <div className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">
+                    12
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                    Tasks Pending
+                  </h3>
+                  <div className="text-4xl font-bold text-yellow-500">5</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
