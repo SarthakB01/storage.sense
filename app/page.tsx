@@ -26,6 +26,9 @@ import TimerStopwatch from "@/app/components/TimerStopwatch";
 
 import MyFiles from "@/app/MyFiles/page";
 
+//MyFiles code here:
+
+
 type Task = {
   id: number;
   text: string;
@@ -648,7 +651,7 @@ export default function Home() {
               {/* File Upload Section */}
               <div
                 {...getRootProps()}
-                className={`w-full h-64 border-2 ${isDragActive
+                className={`w-full h-3/4 border-2  ${isDragActive
                   ? "border-[#0F4C75]"
                   : "border-dashed border-gray-300 dark:border-gray-600"
                   } rounded-lg flex flex-col items-center justify-center gap-4 transition duration-300 ${isDragActive ? "shadow-lg bg-[#BBE1FA]" : ""
@@ -709,7 +712,12 @@ export default function Home() {
                 )}
 
               </div>
-              <MyFiles />
+
+
+
+
+
+
 
               {uploadProgress > 0 && (
                 <div className="mt-6 flex justify-center">
@@ -721,6 +729,7 @@ export default function Home() {
                   </div>
                 </div>
               )}
+
 
               {files.length > 0 && (
                 <div className="flex justify-center">
@@ -736,6 +745,12 @@ export default function Home() {
                   </button>
                 </div>
               )}
+
+
+
+
+              <MyFiles />
+
             </>
           )}
 
