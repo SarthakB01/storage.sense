@@ -648,7 +648,7 @@ export default function Home() {
               {/* File Upload Section */}
               <div
                 {...getRootProps()}
-                className={`w-full h-64 border-2 ${isDragActive
+                className={`w-full h-64 border-2 mb-5 ${isDragActive
                   ? "border-[#0F4C75]"
                   : "border-dashed border-gray-300 dark:border-gray-600"
                   } rounded-lg flex flex-col items-center justify-center gap-4 transition duration-300 ${isDragActive ? "shadow-lg bg-[#BBE1FA]" : ""

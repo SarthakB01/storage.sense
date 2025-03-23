@@ -134,9 +134,9 @@ export default function MyFiles() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900">
-      <header className="fixed top-0 left-0 right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50">
-        <div className="flex items-center space-x-3">
+    <div className="h-screen flex flex-col    bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900">
+      {/* <header className="fixed top-0 left-0  right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50"> */}
+        {/* <div className="flex items-center space-x-3">
           <Link href="/" className="flex items-center space-x-3">
             <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
               <svg
@@ -179,10 +179,10 @@ export default function MyFiles() {
             <ArrowLeftIcon className="h-5 w-5" />
             Back to Home
           </Link>
-        </div>
-      </header>
+        </div> */}
+      {/* </header> */}
 
-      <div className="flex-1 relative overflow-auto pt-[88px]">
+      {/* <div className="flex-1 relative overflow-auto  pt-[88px]"> */}
         <main
           className={`min-h-full  bg-white dark:bg-gray-800 transition-all duration-300  ${
             showSidebar ? "mr-[400px] rounded-tr-xl rounded-br-xl" : ""
@@ -408,7 +408,7 @@ export default function MyFiles() {
             </div>
           </div>
         )}
-      </div>
+      {/* </div> */}
     </div>
   );
 }
