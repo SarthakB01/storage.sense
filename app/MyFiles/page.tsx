@@ -74,18 +74,26 @@ export default function MyFiles() {
     async function fetchFiles() {
       try {
         const response = await fetch("/api/files/displayFiles");
-        if (!response.ok) {
-          console.error(`API error: ${response.status} ${response.statusText}`);
-          return;
-        }
+        
+        // Log the raw response for debugging
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
         const data = await response.json();
+        
+        // Log the parsed response
+        console.log('Parsed response:', data);
+  
         if (data.success) {
           setFiles(data.files);
         } else {
-          console.error("Error fetching files:", data.error);
+          console.error("Error fetching files:", data.error, data.details);
+          // Optional: show user-friendly error message
+          // alert(data.error || "Failed to fetch files");
         }
       } catch (err) {
         console.error("Fetch failed:", err);
+        // alert("Failed to fetch files. Please try again.");
       }
     }
     fetchFiles();

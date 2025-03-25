@@ -1,94 +1,119 @@
-// Import necessary modules
-import clientPromise from '../../../mongodb'; // MongoDB connection utility
-import { GridFSBucket } from 'mongodb'; // GridFS for storing files
+import { authOptions } from '../../auth/[...nextauth]/route';
+import { NextRequest } from 'next/server';
+import clientPromise from '../../../mongodb';
+import { getServerSession } from 'next-auth/next';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ObjectId } from 'mongodb';
 
-// Handle POST request (file upload)
-export async function POST(request: Request) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(request: NextRequest) {
   try {
-    // Parse the incoming form data to retrieve files
-    const formData = await request.formData();
-    const files = formData.getAll('files') as File[]; // Get all files from the form data
+    // Get the server-side session
+    const session = await getServerSession(authOptions);
+    
+    // Comprehensive logging of session details
+    console.log('FULL Session Details:', JSON.stringify(session, null, 2));
 
-    // Check if any files were uploaded
-    if (files.length === 0) {
+    // Check if user is authenticated
+    if (!session || !session.user) {
+      console.error('No session found - Unauthorized access');
       return new Response(
-        JSON.stringify({ success: false, error: 'No files were uploaded' }), // Error response
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          success: false, 
+          message: 'Unauthorized: Please log in', 
+          details: 'No active session found' 
+        }), 
+        { 
+          status: 401, 
+          headers: { 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Prepare file metadata for saving to MongoDB
-    const metadata = files.map((file) => ({
-      filename: file.name, // Original name of the file
-      size: file.size, // File size in bytes
-      type: file.type, // MIME type (e.g., image/jpeg, application/pdf)
-      uploadedAt: new Date(), // Timestamp of upload
-    }));
-
-    // Connect to MongoDB and initialize GridFS bucket
-    const client = await clientPromise; // Get MongoDB client
-    const db = client.db(); // Get default database
-    const bucket = new GridFSBucket(db, { bucketName: 'uploads' }); // GridFS bucket for file storage
-    const collection = db.collection('uploads.files'); // Collection to store file metadata
-
-    // Save metadata to MongoDB
-    await collection.insertMany(metadata);
-
-    // Save files to GridFS
-    for (const file of files) {
-      // Open an upload stream for each file
-      const uploadStream = bucket.openUploadStream(file.name, {
-        contentType: file.type  // Store content type directly
-      });
-
-      // Convert the file to an ArrayBuffer, then to a Buffer for uploading
-      const buffer = await file.arrayBuffer();
-      uploadStream.end(Buffer.from(buffer)); // Upload the file content to GridFS
-    }
-
-    // Respond with a success message
-    return new Response(
-      JSON.stringify({ success: true, message: 'Files uploaded successfully' }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
-  } catch (error) {
-    // Handle errors and respond with an appropriate error message
-    console.error('Error during file upload:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-}
-
-// Handle GET request (file retrieval and metadata fetching)
-export async function GET() {
-  try {
+    // Connect to MongoDB
     const client = await clientPromise;
     const db = client.db();
-    const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
+    
+    // Check collections
+    const collections = await db.collections();
+    console.log('Available Collections:', collections.map(c => c.collectionName));
 
-    // Get all files from GridFS
-    const files = await bucket.find({}).toArray();
+    // Investigate uploads collection
+    const uploadsCollection = db.collection('uploads.files');
+    
+    // Comprehensive collection investigation
+    const totalDocuments = await uploadsCollection.countDocuments();
+    console.log('Total Documents in uploads.files:', totalDocuments);
 
-    // Map the files to include necessary fields including metadata
+    // Fetch a few sample documents to inspect
+    const sampleDocs = await uploadsCollection.find().limit(5).toArray();
+    console.log('Sample Documents:', JSON.stringify(sampleDocs, null, 2));
+
+    // Flexible query approaches
+    const queries = [
+      { 'metadata.uploadedBy.email': session.user.email },
+      { 'metadata.uploadedBy.name': session.user.name },
+      { 'metadata.uploadedBy.id': session.user.id },
+      // Additional fallback queries
+      { 'uploadedBy.email': session.user.email },
+      { 'uploadedBy.name': session.user.name },
+      { uploadedBy: session.user.email },
+      { uploadedBy: session.user.name }
+    ];
+
+    // Try multiple query approaches
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let files: any[] = [];
+    for (const query of queries) {
+      const foundFiles = await uploadsCollection.find(query).toArray();
+      console.log(`Query attempted:`, { 
+        query, 
+        count: foundFiles.length,
+        sampleDoc: foundFiles.length > 0 ? foundFiles[0] : null
+      });
+      
+      if (foundFiles.length > 0) {
+        files = foundFiles;
+        break;
+      }
+    }
+
+    // Map files to required format
     const filesData = files.map(file => ({
       _id: file._id.toString(),
       filename: file.filename,
       length: file.length,
-      mimetype: file.contentType || 'Unknown'  // Get content type directly
+      mimetype: file.metadata?.mimeType || file.contentType || 'Unknown',
+      uploadedBy: file.metadata?.uploadedBy
     }));
 
-    return new Response(JSON.stringify({ success: true, files: filesData }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        files: filesData,
+        userInfo: {
+          email: session.user.email,
+          name: session.user.name,
+          id: session.user.id
+        }
+      }), 
+      { 
+        headers: { 'Content-Type': 'application/json' } 
+      }
+    );
+
   } catch (error) {
-    console.error('Error fetching files:', error);
-    return new Response(JSON.stringify({ success: false, error: 'Failed to fetch files' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.error('Error in file retrieval:', error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        message: 'Failed to fetch files', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      }), 
+      { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      }
+    );
   }
 }
-
-

@@ -1,6 +1,8 @@
 import clientPromise from '../../mongodb';
 import { GridFSBucket } from 'mongodb';
 import { Readable } from 'stream';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 // Convert browser's ReadableStream to Node.js Readable stream
 function convertReadableStreamToReadable(readableStream: ReadableStream<Uint8Array>): Readable {
@@ -20,6 +22,20 @@ function convertReadableStreamToReadable(readableStream: ReadableStream<Uint8Arr
 
 export async function POST(request: Request) {
   try {
+    // Get the server-side session
+    const session = await getServerSession(authOptions);
+
+    // Check if user is authenticated
+    if (!session || !session.user) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'Unauthorized: Please log in' 
+      }), { 
+        status: 401, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+
     const client = await clientPromise;
     const db = client.db();
     const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
@@ -37,7 +53,15 @@ export async function POST(request: Request) {
     for (const file of files) {
       const readableStream = convertReadableStreamToReadable(file.stream());
       const uploadStream = bucket.openUploadStream(file.name, {
-        metadata: { mimeType: file.type, size: file.size },
+        metadata: { 
+          mimeType: file.type, 
+          size: file.size,
+          uploadedBy: {
+            email: session.user.email,
+            name: session.user.name,
+            id: session.user.id
+          }
+        },
       });
 
       // Pipe the file stream into GridFS
