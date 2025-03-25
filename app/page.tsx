@@ -73,11 +73,11 @@ export default function Home() {
   });
 
   // Pre-warm the API endpoint
-  useEffect(() => {
-    fetch("/api/files/ping")
-      .then(() => console.log("API pre-warmed"))
-      .catch((err) => console.error("Pre-warm failed:", err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("/api/files/ping")
+  //     .then(() => console.log("API pre-warmed"))
+  //     .catch((err) => console.error("Pre-warm failed:", err));
+  // }, []);
 
   // Fetch uploaded files
   useEffect(() => {
@@ -709,7 +709,6 @@ export default function Home() {
                 )}
 
               </div>
-              <MyFiles />
 
               {uploadProgress > 0 && (
                 <div className="mt-6 flex justify-center">
@@ -721,6 +720,9 @@ export default function Home() {
                   </div>
                 </div>
               )}
+
+
+
 
               {files.length > 0 && (
                 <div className="flex justify-center">
@@ -736,6 +738,11 @@ export default function Home() {
                   </button>
                 </div>
               )}
+
+
+
+              <MyFiles />
+
             </>
           )}
 

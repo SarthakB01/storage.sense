@@ -30,11 +30,11 @@ export default function Home() {
   });
 
   // Pre-warm the API endpoint
-  useEffect(() => {
-    fetch("/api/files/ping")
-      .then(() => console.log("API pre-warmed"))
-      .catch((err) => console.error("Pre-warm failed:", err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("/api/files/ping")
+  //     .then(() => console.log("API pre-warmed"))
+  //     .catch((err) => console.error("Pre-warm failed:", err));
+  // }, []);
 
   const [uploadProgress, setUploadProgress] = useState(0);
   
