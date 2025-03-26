@@ -34,6 +34,10 @@ export const authOptions: AuthOptions = {
   debug: true,
 };
 
-const handler = NextAuth(authOptions);
+// const handler = NextAuth(authOptions);
 
-export const { GET, POST } = handler;
+// export const { GET, POST } = handler;
+
+const { handlers: { GET, POST } } = NextAuth(authOptions);
+
+export { GET, POST }; 

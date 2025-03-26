@@ -1,4 +1,4 @@
-import { authOptions } from '../../auth/[...nextauth]/route';
+import  { authOptions } from '../../auth/[...nextauth]/route';
 import { NextRequest } from 'next/server';
 import clientPromise from '../../../mongodb';
 import { getServerSession } from 'next-auth/next';
@@ -32,19 +32,19 @@ export async function GET(request: NextRequest) {
     const db = client.db();
     
     // Check collections
-    const collections = await db.collections();
-    console.log('Available Collections:', collections.map(c => c.collectionName));
+    // const collections = await db.collections();
+    // console.log('Available Collections:', collections.map(c => c.collectionName));
 
     // Investigate uploads collection
     const uploadsCollection = db.collection('uploads.files');
     
     // Comprehensive collection investigation
-    const totalDocuments = await uploadsCollection.countDocuments();
-    console.log('Total Documents in uploads.files:', totalDocuments);
+    // const totalDocuments = await uploadsCollection.countDocuments();
+    // console.log('Total Documents in uploads.files:', totalDocuments);
 
     // Fetch a few sample documents to inspect
-    const sampleDocs = await uploadsCollection.find().limit(5).toArray();
-    console.log('Sample Documents:', JSON.stringify(sampleDocs, null, 2));
+    // const sampleDocs = await uploadsCollection.find().limit(5).toArray();
+    // console  .log('Sample Documents:', JSON.stringify(sampleDocs, null, 2));
 
     // Flexible query approaches
     const queries = [
