@@ -20,7 +20,7 @@ export default function MyFiles() {
     _id: string;
     filename: string;
     size: number;
-    mimetype: string; // Changed from metadata.mimetype
+    mimetype: string;
   }
 
   const [files, setFiles] = useState<File[]>([]);
@@ -29,6 +29,7 @@ export default function MyFiles() {
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
 
   const handleProperties = (file: File) => {
     setSelectedFile(file);
@@ -84,16 +85,21 @@ export default function MyFiles() {
         // Log the parsed response
         console.log('Parsed response:', data);
   
+        // Check for session first
+        if (data.session === false) {
+          setFiles([]);
+          setNeedsLogin(true);
+          return;
+        }
+
         if (data.success) {
           setFiles(data.files);
         } else {
           console.error("Error fetching files:", data.error, data.details);
-          // Optional: show user-friendly error message
-          // alert(data.error || "Failed to fetch files");
         }
       } catch (err) {
         console.error("Fetch failed:", err);
-        // alert("Failed to fetch files. Please try again.");
+        setNeedsLogin(true);
       }
     }
     fetchFiles();
@@ -141,67 +147,64 @@ export default function MyFiles() {
     }
   };
 
-  return (
-    <div className="h-screen flex flex-col    bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900">
-      {/* <header className="fixed top-0 left-0  right-0 w-full px-8 py-6 flex justify-between items-center bg-white dark:bg-gray-800 shadow-md z-50"> */}
-        {/* <div className="flex items-center space-x-3">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-[#3282B8] to-[#0F4C75] p-2 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 10l9-7 9 7v7a4 4 0 01-4 4H7a4 4 0 01-4-4v-7z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 21V9l6 3m-6 0l6-3"
-                />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold flex items-center space-x-1">
-              <span className="font-extrabold bg-gradient-to-r from-[#3282B8] to-[#0F4C75] bg-clip-text text-transparent animate-gradient leading-none">
-                STORAGE
-              </span>
-              <span className="text-2xl font-medium text-[#0F4C75] dark:text-white">
-                Sense
-              </span>
-            </h1>
-          </Link>
-        </div>
-
-        <div className="flex items-center space-x-6">
-          <DarkModeToggle />
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 bg-[#0F4C75] hover:bg-[#1B262C] text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:scale-105"
+  // Login Prompt Component
+  const LoginPrompt = () => (
+    <div className="min-h-full bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-xl p-8 max-w-md w-full text-center space-y-6">
+        <div className="flex justify-center mb-4">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-16 w-16 text-[#0F4C75] dark:text-blue-400" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
           >
-            <ArrowLeftIcon className="h-5 w-5" />
-            Back to Home
-          </Link>
-        </div> */}
-      {/* </header> */}
-
-      {/* <div className="flex-1 relative overflow-auto  pt-[88px]"> */}
-        <main
-          className={`min-h-full  bg-white dark:bg-gray-800 transition-all duration-300  ${
-            showSidebar ? "mr-[400px] rounded-tr-xl rounded-br-xl" : ""
-          }`}
-          // style={{ backgroundColor: "white" }}
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+            />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-[#1B262C] dark:text-white">
+          My Files
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          Please log in to access your files and continue your session.
+        </p>
+        <Link 
+          href="/api/auth/signin/github" 
+          className="w-full inline-block bg-[#0F4C75] hover:bg-[#1B262C] text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-300 hover:scale-105"
         >
-          <div className="rounded-tr-xl rounded-br-xl max-w-7xl mx-auto px-4 py-8">
-            <h1 className="text-3xl font-semibold text-[#1B262C] dark:text-white mb-6">
-              My Files
-            </h1>
+          Log In
+        </Link>
+      </div>
+    </div>
+  );
 
+  // If needs login, render the login prompt
+  if (needsLogin) {
+    return <LoginPrompt />;
+  }
+
+  return (
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#BBE1FA] to-[#d7e7f2] dark:from-gray-800 dark:to-gray-900">
+      <main
+        className={`min-h-full bg-white dark:bg-gray-800 transition-all duration-300 ${
+          showSidebar ? "mr-[400px] rounded-tr-xl rounded-br-xl" : ""
+        }`}
+      >
+        <div className="rounded-tr-xl rounded-br-xl max-w-7xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-semibold text-[#1B262C] dark:text-white mb-6">
+            My Files
+          </h1>
+
+          {files.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              Your files are loading..
+            </div>
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {files.map((file, index) => (
                 <div
@@ -294,129 +297,129 @@ export default function MyFiles() {
                 </div>
               ))}
             </div>
-          </div>
-        </main>
+          )}
+        </div>
+      </main>
 
-        {showSidebar && selectedFile && (
-          <aside className=" rounded-tl-xl rounded-bl-xl  fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
-            <div className="p-6">
-              <div className=" flex justify-between items-center mb-6">
-                <h3 className="  text-xl font-semibold text-gray-800 dark:text-gray-200">
-                  File Properties
-                </h3>
-                <button
-                  onClick={() => setShowSidebar(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+      {showSidebar && selectedFile && (
+        <aside className=" rounded-tl-xl rounded-bl-xl  fixed top-[88px] right-0 w-[400px] h-[calc(100vh-88px)] bg-white dark:bg-gray-800 shadow-lg">
+          <div className="p-6">
+            <div className=" flex justify-between items-center mb-6">
+              <h3 className="  text-xl font-semibold text-gray-800 dark:text-gray-200">
+                File Properties
+              </h3>
+              <button
+                onClick={() => setShowSidebar(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-500 dark:text-gray-300"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-500 dark:text-gray-300"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex flex-col items-center mb-6">
-                {getFileIcon(selectedFile)}
-                <h4 className="text-lg font-medium text-gray-800 dark:text-gray-200 mt-4 text-center">
-                  {selectedFile.filename}
-                </h4>
-              </div>
-              <div className="space-y-4">
-                <div className="border-t pt-4">
-                  <h5 className="text-l font-bold  text-gray-800 dark:text-gray-400 mb-2">
-                    File Details
-                  </h5>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Size
-                      </span>
-                      <span className="text-gray-800 dark:text-gray-200">
-                        {(selectedFile.length / 1024).toFixed(2)} KB
-                      </span>
-                    </div>
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="flex flex-col items-center mb-6">
+              {getFileIcon(selectedFile)}
+              <h4 className="text-lg font-medium text-gray-800 dark:text-gray-200 mt-4 text-center">
+                {selectedFile.filename}
+              </h4>
+            </div>
+            <div className="space-y-4">
+              <div className="border-t pt-4">
+                <h5 className="text-l font-bold  text-gray-800 dark:text-gray-400 mb-2">
+                  File Details
+                </h5>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Size
+                    </span>
+                    <span className="text-gray-800 dark:text-gray-200">
+                      {(selectedFile.length / 1024).toFixed(2)} KB
+                    </span>
+                  </div>
 
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400 block">
-                        File ID:
-                      </span>
-                      <span className="text-gray-600 dark:text-gray-400 block">
-                        {selectedFile._id}
-                      </span>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400 block">
+                      File ID:
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400 block">
+                      {selectedFile._id}
+                    </span>
+                  </div>
 
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Type
-                      </span>
-                      <span className="text-gray-800 dark:text-gray-200">
-                        {selectedFile.mimetype || "Unknown"}
-                      </span>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Type
+                    </span>
+                    <span className="text-gray-800 dark:text-gray-200">
+                      {selectedFile.mimetype || "Unknown"}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </aside>
-        )}
+          </div>
+        </aside>
+      )}
 
-        {isPreviewOpen && previewFile && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center "
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
+      {isPreviewOpen && previewFile && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center "
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsPreviewOpen(false);
+            }
+          }}
+        >
+          <div className="bg-gray-200 dark:bg-gray-500 p-4 rounded-lg w-4/5 h-4/5 relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Stop event from bubbling up
                 setIsPreviewOpen(false);
-              }
-            }}
-          >
-            <div className="bg-gray-200 dark:bg-gray-500 p-4 rounded-lg w-4/5 h-4/5 relative">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Stop event from bubbling up
-                  setIsPreviewOpen(false);
-                }}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-50"
-              >
-                <XMarkIcon className="w-10 h-10 text-red-600" />
-              </button>
-              <div className="relative w-full h-full ">
-                <div className="absolute top-4 left-4 p-3 bg-black bg-opacity-50 text-white rounded-lg max-w-[80%] z-10 ">
-                  <p
-                    className="truncate font-medium "
-                    title={previewFile.filename}
-                  >
-                    {previewFile.filename}
-                  </p>
-                </div>
+              }}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-50"
+            >
+              <XMarkIcon className="w-10 h-10 text-red-600" />
+            </button>
+            <div className="relative w-full h-full ">
+              <div className="absolute top-4 left-4 p-3 bg-black bg-opacity-50 text-white rounded-lg max-w-[80%] z-10 ">
+                <p
+                  className="truncate font-medium "
+                  title={previewFile.filename}
+                >
+                  {previewFile.filename}
+                </p>
+              </div>
 
-                <div className="relative w-full h-full flex justify-center items-center">
-                  <Image
-                    src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
-                    alt="Preview not available for this file."
-                    fill={true}
-                    className="object-contain rounded-lg"
-                    sizes="80vw"
-                  />
+              <div className="relative w-full h-full flex justify-center items-center">
+                <Image
+                  src={`/api/files/ServeDownloads?filename=${previewFile.filename}`}
+                  alt="Preview not available for this file."
+                  fill={true}
+                  className="object-contain rounded-lg"
+                  sizes="80vw"
+                />
 
-                  {(previewFile.filename.endsWith(".pdf") ||
-                    previewFile.filename.endsWith(".docx")) && (
-                    <span className="absolute text-black dark:text-white font-bold text-2xl text-center">
-                      Preview not available for this file.
-                    </span>
-                  )}
-                </div>
+                {(previewFile.filename.endsWith(".pdf") ||
+                  previewFile.filename.endsWith(".docx")) && (
+                  <span className="absolute text-black dark:text-white font-bold text-2xl text-center">
+                    Preview not available for this file.
+                  </span>
+                )}
               </div>
             </div>
           </div>
-        )}
-      {/* </div> */}
+        </div>
+      )}
     </div>
   );
 }

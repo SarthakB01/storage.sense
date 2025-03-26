@@ -10,21 +10,18 @@ export async function GET(request: NextRequest) {
   try {
     // Get the server-side session
     const session = await getServerSession(authOptions);
-    
-    // Comprehensive logging of session details
-    console.log('FULL Session Details:', JSON.stringify(session, null, 2));
 
-    // Check if user is authenticated
+    // If no session, return a 200 OK response with a message about logging in
     if (!session || !session.user) {
-      console.error('No session found - Unauthorized access');
       return new Response(
         JSON.stringify({ 
-          success: false, 
-          message: 'Unauthorized: Please log in', 
-          details: 'No active session found' 
+          success: true, 
+          files: [],
+          session: false,
+          message: 'Login to view your files in the MyFiles section' 
         }), 
         { 
-          status: 401, 
+          status: 200, 
           headers: { 'Content-Type': 'application/json' } 
         }
       );
@@ -77,7 +74,6 @@ export async function GET(request: NextRequest) {
         break;
       }
     }
-
     // Map files to required format
     const filesData = files.map(file => ({
       _id: file._id.toString(),
@@ -87,10 +83,13 @@ export async function GET(request: NextRequest) {
       uploadedBy: file.metadata?.uploadedBy
     }));
 
+    
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         files: filesData,
+        session: true,
         userInfo: {
           email: session.user.email,
           name: session.user.name,
@@ -102,11 +101,21 @@ export async function GET(request: NextRequest) {
       }
     );
 
-  } catch (error) {
+
+
+
+
+
+
+
+  }
+  catch (error) {
     console.error('Error in file retrieval:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
+        files: [],
+        session: false,
         message: 'Failed to fetch files', 
         details: error instanceof Error ? error.message : 'Unknown error' 
       }), 
@@ -116,4 +125,13 @@ export async function GET(request: NextRequest) {
       }
     );
   }
+
+
+
+
+
+
 }
+
+
+

@@ -26,6 +26,11 @@ import TimerStopwatch from "@/app/components/TimerStopwatch";
 
 import MyFiles from "@/app/MyFiles/page";
 
+import WordToPdfComponent from "./Convert_Docs_Frontend/wordtopdf_fe/page";
+
+import PdfToWordComponent from "./Convert_Docs_Frontend/pdftoword_fe/page";
+import { TimerProvider } from "./context/TimerContext";
+
 type Task = {
   id: number;
   text: string;
@@ -84,11 +89,18 @@ export default function Home() {
     async function fetchUploadedFiles() {
       try {
         const response = await fetch("/api/files/displayFiles");
-        if (response.ok) {
-          const data = await response.json();
-          setUploadedFiles(data);
+        const data = await response.json();
+        
+        if (!data.session) {
+          // No session found, handle login prompt
+          return <span>Please log in</span>;
+        }
+
+
+        if (response.ok && data.success) {
+          setUploadedFiles(data.files);
         } else {
-          console.error("Failed to fetch files:", response.statusText);
+          console.error("Failed to fetch files:", data.message);
         }
       } catch (err) {
         console.error("Error fetching files:", err);
@@ -210,8 +222,6 @@ export default function Home() {
                   </p>
                 </div>
 
-
-
               ) : (
                 <ul className="mt-4 w-full space-y-3 overflow-y-auto max-h-40">
                   {files.map((file, index) => (
@@ -252,12 +262,6 @@ export default function Home() {
               )}
 
             </div>
-
-
-
-
-
-
 
             {uploadProgress > 0 && (
               <div className="mt-6 flex justify-center">
@@ -436,6 +440,16 @@ export default function Home() {
             </div>
           </div>
         );
+      case "wordtopdftab":
+        return (
+          <WordToPdfComponent />
+        );
+
+      case "pdftowordtab":
+        return (
+          <PdfToWordComponent />
+        );
+
       default:
         return null;
     }
@@ -559,7 +573,9 @@ export default function Home() {
                 <ClockIcon className="h-5 w-5" />
                 <span>Timer</span>
               </button>
+
             </li>
+
             <li>
               <button
                 onClick={() => setActiveTab("calendar")}
@@ -587,6 +603,27 @@ export default function Home() {
                 <span>Analytics</span>
               </button>
             </li>
+
+            <li>
+              <button
+                onClick={() => setActiveTab("wordtopdftab")}
+                className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold"
+              >
+                <ChartBarIcon className="h-5 w-5" />
+                <span>Word to PDF</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() => setActiveTab("pdftowordtab")}
+                className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold"
+              >
+                <ChartBarIcon className="h-5 w-5" />
+                <span>PDF to Word</span>
+              </button>
+            </li>
+
           </ul>
 
           {/* Storage Section */}
@@ -628,14 +665,28 @@ export default function Home() {
                 </span>
               </Link>
             </li>
-            <li>
-              <Link href="/Convert_Docs_Frontend">
+            
+            {/* <li>
+              <Link href="/Convert_Docs_Frontend/pdftoword_fe">
                 <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
                   <ArrowDownIcon className="h-5 w-5" />
                   <span>Convert PDF to Word</span>
                 </span>
               </Link>
-            </li>
+            </li> */}
+
+            {/* <li>
+              <Link href="/Convert_Docs_Frontend/wordtopdf_fe">
+                <span className="flex items-center space-x-2 hover:text-[#0F4C75] dark:hover:text-[#BBE1FA] font-semibold">
+                  <ArrowDownIcon className="h-5 w-5" />
+                  <span>Convert Word to PDF</span>
+                </span>
+              </Link>
+            </li> */}
+
+
+
+
           </ul>
         </aside>
 
@@ -877,7 +928,11 @@ export default function Home() {
             </div>
           )}
 
-          {activeTab === "timer" && <TimerStopwatch />}
+          {activeTab === "timer" &&
+            <TimerProvider>
+              <TimerStopwatch />
+            </TimerProvider>
+          }
 
           {activeTab === "analytics" && (
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
@@ -902,6 +957,19 @@ export default function Home() {
               </div>
             </div>
           )}
+
+          {activeTab === 'wordtopdftab' && (
+            <WordToPdfComponent />
+          )}
+
+          {activeTab === 'pdftowordtab' && (
+            <PdfToWordComponent />
+          )}
+
+
+
+
+
         </div>
       </main>
     </div>
