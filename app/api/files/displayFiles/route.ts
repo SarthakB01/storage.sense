@@ -1,4 +1,4 @@
-import { authOptions } from '../../auth/[...nextauth]/alternateroute';
+import { authOptions } from '../../auth/[...nextauth]/route';
 import { NextRequest } from 'next/server';
 import clientPromise from '../../../mongodb';
 import { getServerSession } from 'next-auth/next';
