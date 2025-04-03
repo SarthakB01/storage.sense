@@ -2,7 +2,6 @@ import clientPromise from '../../mongodb';
 import { GridFSBucket } from 'mongodb';
 import { Readable } from 'stream';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/route';
 
 // Convert browser's ReadableStream to Node.js Readable stream
 function convertReadableStreamToReadable(readableStream: ReadableStream<Uint8Array>): Readable {
@@ -23,7 +22,7 @@ function convertReadableStreamToReadable(readableStream: ReadableStream<Uint8Arr
 export async function POST(request: Request) {
   try {
     // Get the server-side session
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
 
     // Check if user is authenticated
     if (!session || !session.user) {
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
 
     // Parse form data
     const formData = await request.formData();
-    const files = formData.getAll('files') as File[];
+    const files: File[] = Array.from(formData.getAll('files')) as File[];
 
     // Check for files
     if (files.length === 0) {

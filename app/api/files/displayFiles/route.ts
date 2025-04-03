@@ -1,17 +1,22 @@
-import { authOptions } from '../../auth/[...nextauth]/route';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { getServerSession } from 'next-auth/next';
+import GithubProvider from "next-auth/providers/github";
 import { NextRequest } from 'next/server';
 import clientPromise from '../../../mongodb';
-import { getServerSession } from 'next-auth/next';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ObjectId } from 'mongodb';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
   try {
-    // Get the server-side session
-    const session = await getServerSession(authOptions);
+    // Dynamically get session without direct import
+    const session = await getServerSession({
+      providers: [
+        GithubProvider({
+          clientId: process.env.GITHUB_CLIENT_ID as string,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+        }),
+      ],
+      debug: true,
+    });
 
-    // If no session, return a 200 OK response with a message about logging in
     if (!session || !session.user) {
       return new Response(
         JSON.stringify({ 
@@ -30,51 +35,29 @@ export async function GET(request: NextRequest) {
     // Connect to MongoDB
     const client = await clientPromise;
     const db = client.db();
-    
-    // Check collections
-    const collections = await db.collections();
-    console.log('Available Collections:', collections.map(c => c.collectionName));
-
-    // Investigate uploads collection
     const uploadsCollection = db.collection('uploads.files');
-    
-    // Comprehensive collection investigation
-    const totalDocuments = await uploadsCollection.countDocuments();
-    console.log('Total Documents in uploads.files:', totalDocuments);
 
-    // Fetch a few sample documents to inspect
-    const sampleDocs = await uploadsCollection.find().limit(5).toArray();
-    console.log('Sample Documents:', JSON.stringify(sampleDocs, null, 2));
-
-    // Flexible query approaches
+    // Possible query approaches to find user files
     const queries = [
       { 'metadata.uploadedBy.email': session.user.email },
       { 'metadata.uploadedBy.name': session.user.name },
       { 'metadata.uploadedBy.id': session.user.id },
-      // Additional fallback queries
       { 'uploadedBy.email': session.user.email },
       { 'uploadedBy.name': session.user.name },
       { uploadedBy: session.user.email },
       { uploadedBy: session.user.name }
     ];
 
-    // Try multiple query approaches
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let files: any[] = [];
+    let files: any[] = []; // Explicitly define type as an array of any objects
     for (const query of queries) {
       const foundFiles = await uploadsCollection.find(query).toArray();
-      console.log(`Query attempted:`, { 
-        query, 
-        count: foundFiles.length,
-        sampleDoc: foundFiles.length > 0 ? foundFiles[0] : null
-      });
-      
       if (foundFiles.length > 0) {
         files = foundFiles;
-        break;
+        break; // Stop if files are found
       }
     }
-    // Map files to required format
+
     const filesData = files.map(file => ({
       _id: file._id.toString(),
       filename: file.filename,
@@ -82,8 +65,6 @@ export async function GET(request: NextRequest) {
       mimetype: file.metadata?.mimeType || file.contentType || 'Unknown',
       uploadedBy: file.metadata?.uploadedBy
     }));
-
-    
 
     return new Response(
       JSON.stringify({ 
@@ -96,18 +77,8 @@ export async function GET(request: NextRequest) {
           id: session.user.id
         }
       }), 
-      { 
-        headers: { 'Content-Type': 'application/json' } 
-      }
+      { headers: { 'Content-Type': 'application/json' } }
     );
-
-
-
-
-
-
-
-
   }
   catch (error) {
     console.error('Error in file retrieval:', error);
@@ -125,13 +96,4 @@ export async function GET(request: NextRequest) {
       }
     );
   }
-
-
-
-
-
-
 }
-
-
-
